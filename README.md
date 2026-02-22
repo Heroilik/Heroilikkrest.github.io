@@ -21,7 +21,7 @@
         }
 
         .game-card {
-            max-width: 600px;
+            max-width: 700px;
             width: 100%;
             background: rgba(25, 35, 48, 0.95);
             backdrop-filter: blur(8px);
@@ -41,6 +41,25 @@
             gap: 15px;
             border-bottom: 2px solid #2b4b6f;
             padding-bottom: 20px;
+        }
+
+        .debug-section {
+            background: #0e1a24;
+            border-radius: 20px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: monospace;
+            color: #a0c0e0;
+            border: 1px solid #2a4b6e;
+            max-height: 120px;
+            overflow-y: auto;
+            font-size: 0.9rem;
+        }
+
+        .debug-log {
+            margin: 3px 0;
+            border-bottom: 1px dotted #2e4a66;
+            padding: 3px 0;
         }
 
         .peer-section {
@@ -101,6 +120,11 @@
         .btn.secondary {
             background: #3d4f6b;
             border-bottom-color: #1d2c3f;
+        }
+
+        .btn.success {
+            background: #2b6b4f;
+            border-bottom-color: #1a4a35;
         }
 
         .status-box {
@@ -192,6 +216,8 @@
             align-items: center;
             margin-top: 25px;
             color: #7e9fc7;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .id-display {
@@ -203,6 +229,14 @@
             border: 1px solid #3f6792;
             color: #b5d6ff;
         }
+
+        .offline-test {
+            margin-top: 20px;
+            background: #1b3a4a;
+            border-radius: 30px;
+            padding: 15px;
+            text-align: center;
+        }
     </style>
     
     <!-- Подключаем PeerJS (WebRTC библиотека) -->
@@ -212,14 +246,22 @@
     <div class="game-card">
         <h1>
             <span>❌⭕</span> P2P Tic-Tac-Toe
-            <span style="font-size: 0.9rem; background: #203a50; padding: 5px 18px; border-radius: 30px;">WebRTC</span>
+            <span style="font-size: 0.9rem; background: #203a50; padding: 5px 18px; border-radius: 30px;">WebRTC v2</span>
         </h1>
+
+        <!-- Отладочное окно -->
+        <div class="debug-section" id="debugLog">
+            <div class="debug-log">🔍 Система отладки активна...</div>
+        </div>
 
         <!-- Секция подключения -->
         <div class="peer-section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                <span class="player-badge" id="myIdDisplay">ID: загрузка...</span>
-                <button class="btn secondary" id="copyIdBtn" style="padding: 10px 20px;">📋 Копировать</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 10px;">
+                <span class="player-badge" id="myIdDisplay">🆔 ID: генерируется...</span>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn secondary" id="copyIdBtn" style="padding: 10px 20px;">📋 Копировать</button>
+                    <button class="btn secondary" id="newIdBtn" style="padding: 10px 20px;">🔄 Новый ID</button>
+                </div>
             </div>
 
             <div class="input-group">
@@ -231,6 +273,11 @@
                 <span class="connection-indicator" id="indicator"></span>
                 <span id="statusText">Ожидание подключения...</span>
             </div>
+
+            <!-- Кнопка оффлайн теста -->
+            <div class="offline-test">
+                <button class="btn success" id="offlineTestBtn" style="width: 100%;">🧪 Оффлайн тест (два игрока в одной вкладке)</button>
+            </div>
         </div>
 
         <!-- Игровая доска -->
@@ -240,7 +287,7 @@
 
         <!-- Информация о ходе -->
         <div class="footer">
-            <div id="turnIndicator">❌ Ваш ход</div>
+            <div id="turnIndicator">❌ Ожидание игрока...</div>
             <button class="btn secondary" id="resetGameBtn" style="padding: 12px 28px;">🔄 Заново</button>
             <div id="opponentIdDisplay">🤝 нет оппонента</div>
         </div>
@@ -248,11 +295,24 @@
 
     <script>
         (function() {
+            // Логгер
+            function addLog(message) {
+                const debugDiv = document.getElementById('debugLog');
+                const logEntry = document.createElement('div');
+                logEntry.className = 'debug-log';
+                logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+                debugDiv.appendChild(logEntry);
+                debugDiv.scrollTop = debugDiv.scrollHeight;
+                if (debugDiv.children.length > 6) {
+                    debugDiv.removeChild(debugDiv.children[0]);
+                }
+                console.log(message);
+            }
+
             // Состояние игры
             let board = ['', '', '', '', '', '', '', '', ''];
-            let currentPlayer = 'X'; // X всегда начинает
             let gameActive = false;
-            let mySymbol = null;      // 'X' или 'O' - определяется при подключении
+            let mySymbol = null;
             let opponentSymbol = null;
             let myTurn = false;
 
@@ -272,112 +332,152 @@
             const peerIdInput = document.getElementById('peerIdInput');
             const connectBtn = document.getElementById('connectBtn');
             const copyIdBtn = document.getElementById('copyIdBtn');
+            const newIdBtn = document.getElementById('newIdBtn');
             const resetBtn = document.getElementById('resetGameBtn');
+            const offlineTestBtn = document.getElementById('offlineTestBtn');
 
-            // Инициализация Peer
-            function initPeer() {
-                // Генерируем случайный ID для пользователя (можно ввести свой, но для простоты рандом)
-                const randomId = 'player_' + Math.random().toString(36).substring(2, 8);
+            // Инициализация Peer с улучшенными настройками
+            function initPeer(customId = null) {
+                if (peer) {
+                    peer.destroy();
+                }
+
+                addLog('Инициализация PeerJS...');
                 
-                peer = new Peer(randomId, {
-                    // Используем бесплатный сервер PeerJS Cloud (без пароля)
+                // Генерируем ID
+                const peerId = customId || 'player_' + Math.random().toString(36).substring(2, 10) + '_' + Date.now().toString(36);
+                
+                // Улучшенная конфигурация ICE серверов
+                peer = new Peer(peerId, {
+                    host: '0.peerjs.com',
+                    port: 443,
+                    path: '/',
+                    secure: true,
                     config: {
                         'iceServers': [
                             { urls: 'stun:stun.l.google.com:19302' },
                             { urls: 'stun:stun1.l.google.com:19302' },
+                            { urls: 'stun:stun2.l.google.com:19302' },
+                            { urls: 'stun:stun3.l.google.com:19302' },
+                            { urls: 'stun:stun4.l.google.com:19302' },
+                            // TURN сервер на случай строгих NAT (публичный, но медленный)
+                            {
+                                urls: 'turn:turn.bistri.com:80',
+                                credential: 'homeo',
+                                username: 'homeo'
+                            },
+                            {
+                                urls: 'turn:turn.anyfirewall.com:443?transport=tcp',
+                                credential: 'webrtc',
+                                username: 'webrtc'
+                            }
                         ]
-                    }
+                    },
+                    debug: 2 // Включить подробное логирование PeerJS
                 });
 
                 peer.on('open', (id) => {
                     myPeerId = id;
                     myIdDisplay.innerText = `🆔 Ваш ID: ${id}`;
-                    console.log('Мой Peer ID:', id);
+                    addLog(`✅ PeerJS открыт, ID: ${id}`);
+                    connectionStatus.innerText = 'Сервер готов. Введите ID соперника.';
                 });
 
                 peer.on('connection', (incomingConn) => {
-                    // Кто-то подключился к нам
+                    addLog(`📞 Входящее соединение от: ${incomingConn.peer}`);
+                    
                     if (conn && conn.open) {
-                        incomingConn.close(); // уже есть соединение
+                        addLog('⚠️ Уже есть активное соединение, отклоняем');
+                        incomingConn.close();
                         return;
                     }
 
                     conn = incomingConn;
                     connectedPeerId = conn.peer;
-                    opponentIdDisplay.innerText = `🤝 соперник: ${connectedPeerId.substring(0,8)}...`;
+                    opponentIdDisplay.innerText = `🤝 соперник: ${connectedPeerId.substring(0,10)}...`;
                     
                     setupConnection();
 
-                    // Определяем символы: мы тот, к кому подключились => мы O (второй игрок)
+                    // Мы принимающая сторона => мы O
                     mySymbol = 'O';
                     opponentSymbol = 'X';
-                    myTurn = false; // X ходит первым (оппонент)
+                    myTurn = false;
                     
-                    updateTurnDisplay();
                     gameActive = true;
+                    updateTurnDisplay();
                     updateUI();
+                    addLog('🎮 Принято соединение. Вы играете за O (нолики)');
+                });
+
+                peer.on('disconnected', () => {
+                    addLog('⚠️ PeerJS отключён от сервера');
+                    connectionStatus.innerText = 'Потеря связи с сервером. Переподключаемся...';
+                    peer.reconnect();
                 });
 
                 peer.on('error', (err) => {
-                    console.error('Peer error:', err);
-                    connectionStatus.innerText = 'Ошибка: ' + err.type;
+                    addLog(`❌ Ошибка PeerJS: ${err.type} - ${err.message}`);
+                    
+                    if (err.type === 'unavailable-id') {
+                        // ID занят, генерируем новый
+                        addLog('🔄 ID занят, генерируем новый...');
+                        initPeer();
+                    } else if (err.type === 'peer-unavailable') {
+                        connectionStatus.innerText = '❌ Игрок с таким ID не найден';
+                    } else {
+                        connectionStatus.innerText = `Ошибка: ${err.type}`;
+                    }
+                });
+
+                peer.on('close', () => {
+                    addLog('🔒 PeerJS закрыт');
                 });
             }
 
-            // Настройка соединения (общие действия для обеих сторон)
+            // Настройка соединения
             function setupConnection() {
                 conn.on('open', () => {
-                    console.log('Соединение открыто');
+                    addLog('🔗 Соединение установлено!');
                     indicator.classList.add('connected');
-                    connectionStatus.innerText = '✅ Подключено!';
-
-                    // Если мы инициировали соединение (conn создан через connect), то мы X
+                    connectionStatus.innerText = '✅ Подключено к сопернику!';
+                    
+                    // Если символ ещё не определён (инициатор), то мы X
                     if (mySymbol === null) {
-                        // Мы инициатор (нажали "подключиться")
                         mySymbol = 'X';
                         opponentSymbol = 'O';
-                        myTurn = true;  // X ходит первым
+                        myTurn = true;
+                        addLog('🎮 Вы инициатор, играете за X (крестики)');
                     }
                     
                     gameActive = true;
                     updateTurnDisplay();
                     updateUI();
-
-                    // Если мы подключились позже, можно синхронизировать состояние
-                    // но для простоты начинаем новую игру
                 });
 
                 conn.on('data', (data) => {
-                    // Получены данные от соперника
-                    console.log('Получено:', data);
-
+                    addLog(`📨 Получено: ${data.type}`);
+                    
                     if (data.type === 'move') {
-                        // Соперник сделал ход
                         const index = data.index;
                         const symbol = data.symbol;
 
                         if (board[index] === '' && symbol === opponentSymbol) {
                             board[index] = symbol;
-                            myTurn = true;  // теперь наш ход
+                            myTurn = true;
                             updateUI();
                             checkGameStatus();
+                            addLog(`🎯 Ход соперника в клетку ${index}`);
                         }
                     } else if (data.type === 'reset') {
-                        // Соперник сбросил игру
-                        resetGameLocal(false); // false = не отправлять сигнал сброса
-                    } else if (data.type === 'sync') {
-                        // Синхронизация состояния (на случай обрыва)
-                        board = data.board;
-                        currentPlayer = data.currentPlayer;
-                        gameActive = data.gameActive;
-                        myTurn = (mySymbol === currentPlayer);
-                        updateUI();
+                        addLog('🔄 Соперник сбросил игру');
+                        resetGameLocal(false);
                     }
                 });
 
                 conn.on('close', () => {
+                    addLog('🔌 Соединение разорвано');
                     indicator.classList.remove('connected');
-                    connectionStatus.innerText = '🔌 Соединение разорвано';
+                    connectionStatus.innerText = 'Соединение потеряно';
                     gameActive = false;
                     connectedPeerId = null;
                     opponentIdDisplay.innerText = '🤝 нет оппонента';
@@ -385,13 +485,24 @@
                     opponentSymbol = null;
                     myTurn = false;
                     updateUI();
+                    updateTurnDisplay();
+                });
+
+                conn.on('error', (err) => {
+                    addLog(`❌ Ошибка соединения: ${err}`);
                 });
             }
 
-            // Функция подключения к сопернику
+            // Подключение к удалённому peer
             function connectToPeer(remoteId) {
-                if (!remoteId || remoteId === myPeerId) {
-                    alert('Введите корректный ID (не свой)');
+                remoteId = remoteId.trim();
+                if (!remoteId) {
+                    alert('Введите ID соперника');
+                    return;
+                }
+
+                if (remoteId === myPeerId) {
+                    alert('Нельзя подключиться к самому себе! Используйте оффлайн тест для игры с собой.');
                     return;
                 }
 
@@ -399,19 +510,29 @@
                     conn.close();
                 }
 
+                addLog(`🔌 Попытка подключения к: ${remoteId}`);
+                connectionStatus.innerText = `Подключаемся к ${remoteId}...`;
+                
                 conn = peer.connect(remoteId, {
-                    reliable: true
+                    reliable: true,
+                    serialization: 'json'
                 });
 
                 connectedPeerId = remoteId;
-                opponentIdDisplay.innerText = `🤝 соперник: ${remoteId.substring(0,8)}...`;
+                opponentIdDisplay.innerText = `🤝 соперник: ${remoteId.substring(0,10)}...`;
 
-                // Мы инициатор => будем X
-                mySymbol = 'X';
-                opponentSymbol = 'O';
-                myTurn = true; // X начинает
+                // Мы инициатор => символ определится позже (в conn.on('open'))
+                // Пока не назначаем символ
 
                 setupConnection();
+                
+                // Таймаут подключения
+                setTimeout(() => {
+                    if (!conn || !conn.open) {
+                        addLog('⏰ Таймаут подключения');
+                        connectionStatus.innerText = '⏰ Таймаут. Проверьте ID.';
+                    }
+                }, 10000);
             }
 
             // Отрисовка доски
@@ -423,33 +544,38 @@
                 });
                 boardElement.innerHTML = html;
 
-                // Добавляем обработчики
                 document.querySelectorAll('.cell').forEach(cell => {
                     cell.addEventListener('click', cellClickHandler);
                 });
             }
 
-            // Обработчик клика по ячейке
+            // Клик по клетке
             function cellClickHandler(e) {
                 const index = e.currentTarget.dataset.index;
-                if (!gameActive || !myTurn || board[index] !== '' || !conn || !conn.open) return;
+                if (!gameActive || !myTurn || board[index] !== '' || !conn || !conn.open) {
+                    if (!conn || !conn.open) addLog('⚠️ Нет соединения');
+                    else if (!gameActive) addLog('⚠️ Игра не активна');
+                    else if (!myTurn) addLog('⚠️ Сейчас не ваш ход');
+                    return;
+                }
 
                 // Делаем ход
                 board[index] = mySymbol;
                 myTurn = false;
 
-                // Отправляем ход сопернику
                 conn.send({
                     type: 'move',
                     index: parseInt(index),
                     symbol: mySymbol
                 });
 
+                addLog(`📤 Отправлен ход в клетку ${index}`);
+
                 updateUI();
                 checkGameStatus();
             }
 
-            // Проверка победы или ничьи
+            // Проверка победы
             function checkGameStatus() {
                 const winPatterns = [
                     [0,1,2], [3,4,5], [6,7,8],
@@ -462,33 +588,39 @@
                     if (board[a] && board[a] === board[b] && board[a] === board[c]) {
                         gameActive = false;
                         const winner = board[a];
-                        if ((winner === 'X' && mySymbol === 'X') || (winner === 'O' && mySymbol === 'O')) {
+                        if (winner === mySymbol) {
                             turnIndicator.innerText = '🎉 Вы победили!';
+                            addLog('🏆 Победа!');
                         } else {
                             turnIndicator.innerText = '😵 Вы проиграли...';
+                            addLog('😵 Поражение');
                         }
+                        updateUI();
                         return;
                     }
                 }
 
-                // Проверка на ничью
                 if (board.every(cell => cell !== '')) {
                     gameActive = false;
                     turnIndicator.innerText = '🤝 Ничья!';
+                    addLog('🤝 Ничья');
                 } else {
                     updateTurnDisplay();
                 }
+                
+                updateUI();
             }
 
             // Обновление интерфейса
             function updateUI() {
                 renderBoard();
                 
-                // Делаем ячейки неактивными, если не наш ход или игра неактивна
                 if (!gameActive || !myTurn || !conn || !conn.open) {
                     document.querySelectorAll('.cell').forEach(cell => {
-                        cell.style.pointerEvents = 'none';
-                        cell.style.opacity = '0.8';
+                        if (cell.innerText === '') {
+                            cell.style.pointerEvents = 'none';
+                            cell.style.opacity = '0.6';
+                        }
                     });
                 } else {
                     document.querySelectorAll('.cell').forEach(cell => {
@@ -505,23 +637,23 @@
             // Обновление индикатора хода
             function updateTurnDisplay() {
                 if (!gameActive) {
-                    turnIndicator.innerText = mySymbol ? 'Игра завершена' : 'Ожидание...';
+                    if (mySymbol) turnIndicator.innerText = '⏸️ Игра завершена';
+                    else turnIndicator.innerText = '⏳ Ожидание игрока...';
                     return;
                 }
+                
                 if (myTurn) {
-                    turnIndicator.innerText = mySymbol === 'X' ? '❌ Ваш ход' : '⭕ Ваш ход';
+                    turnIndicator.innerText = mySymbol === 'X' ? '❌ Ваш ход (крестики)' : '⭕ Ваш ход (нолики)';
                 } else {
                     turnIndicator.innerText = opponentSymbol === 'X' ? '❌ Ход соперника' : '⭕ Ход соперника';
                 }
             }
 
-            // Сброс игры локально
+            // Локальный сброс игры
             function resetGameLocal(sendSignal = true) {
                 board = ['', '', '', '', '', '', '', '', ''];
-                currentPlayer = 'X';
                 gameActive = true;
                 
-                // Определяем, чей ход (X всегда начинает)
                 if (mySymbol === 'X') {
                     myTurn = true;
                 } else if (mySymbol === 'O') {
@@ -533,41 +665,99 @@
 
                 if (sendSignal && conn && conn.open) {
                     conn.send({ type: 'reset' });
+                    addLog('📤 Отправлен сигнал сброса');
                 }
             }
 
-            // Обработчик кнопки сброса
-            function handleReset() {
+            // Оффлайн тест (два игрока в одной вкладке)
+            function startOfflineTest() {
+                addLog('🧪 Запуск оффлайн теста');
+                
+                // Создаём второе окно для теста
+                const testWindow = window.open('', '_blank');
+                if (!testWindow) {
+                    alert('Разрешите всплывающие окна для теста');
+                    return;
+                }
+                
+                // Генерируем тестовый HTML для второго игрока
+                testWindow.document.write(`
+                    <html>
+                    <head><title>Тестовый игрок 2 (O)</title>
+                    <style>
+                        body { background: #1a2634; color: white; font-family: monospace; padding: 20px; }
+                        .info { background: #2a3f5a; padding: 20px; border-radius: 20px; }
+                    </style>
+                    </head>
+                    <body>
+                        <div class="info">
+                            <h2>🎮 Тестовый игрок 2 (нолики)</h2>
+                            <p>Ваш ID: <b>test_player_2</b></p>
+                            <p>Это окно для теста. Играйте здесь вторым игроком.</p>
+                            <p>Вернитесь в основное окно и подключитесь к ID: <b>test_player_2</b></p>
+                            <button onclick="location.reload()">Обновить</button>
+                        </div>
+                        <script>
+                            // Загружаем PeerJS
+                            const peer = new Peer('test_player_2', {
+                                host: '0.peerjs.com',
+                                port: 443,
+                                path: '/',
+                                config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
+                            });
+                            
+                            peer.on('open', (id) => {
+                                document.body.innerHTML += '<p>✅ Peer готов, ждём подключения...</p>';
+                            });
+                            
+                            peer.on('connection', (conn) => {
+                                document.body.innerHTML += '<p>🔗 Подключено!</p>';
+                                window.conn = conn;
+                                
+                                // Упрощённая логика для теста
+                                conn.on('data', (data) => {
+                                    document.body.innerHTML += '<p>Получено: ' + JSON.stringify(data) + '</p>';
+                                });
+                            });
+                        <\/script>
+                    </body>
+                    </html>
+                `);
+                
+                alert('Оффлайн тест запущен! Во втором окне игрок O. Подключитесь к ID: test_player_2');
+            }
+
+            // Инициализация
+            initPeer();
+
+            // Обработчики
+            connectBtn.addEventListener('click', () => {
+                connectToPeer(peerIdInput.value);
+            });
+
+            copyIdBtn.addEventListener('click', () => {
+                if (myPeerId) {
+                    navigator.clipboard.writeText(myPeerId);
+                    addLog('📋 ID скопирован: ' + myPeerId);
+                    alert('ID скопирован: ' + myPeerId);
+                }
+            });
+
+            newIdBtn.addEventListener('click', () => {
+                initPeer();
+            });
+
+            resetBtn.addEventListener('click', () => {
                 if (!conn || !conn.open) {
                     alert('Нет соединения');
                     return;
                 }
                 resetGameLocal(true);
-            }
-
-            // Инициализация при загрузке
-            initPeer();
-
-            // Подключение по кнопке
-            connectBtn.addEventListener('click', () => {
-                const remoteId = peerIdInput.value.trim();
-                if (remoteId) {
-                    connectToPeer(remoteId);
-                }
             });
 
-            // Копирование ID
-            copyIdBtn.addEventListener('click', () => {
-                if (myPeerId) {
-                    navigator.clipboard.writeText(myPeerId);
-                    alert('ID скопирован: ' + myPeerId);
-                }
-            });
+            offlineTestBtn.addEventListener('click', startOfflineTest);
 
-            // Сброс игры
-            resetBtn.addEventListener('click', handleReset);
-
-            // Первоначальная отрисовка пустой доски
+            // Первоначальная отрисовка
             renderBoard();
             updateTurnDisplay();
 
