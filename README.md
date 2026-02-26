@@ -3,1584 +3,1250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎵 Doodle Jump - МУЗЫКА + НОВЫЕ СКИНЫ</title>
+    <title>3D МАЙНИНГ ФЕРМА - Строй свою империю</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            user-select: none;
         }
-        
+
         body {
-            margin: 0;
-            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            background: #0a0a1a;
+        }
+
+        #ui-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
+            align-items: flex-start;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        #stats-panel {
+            background: rgba(10, 20, 30, 0.95);
+            backdrop-filter: blur(10px);
+            border: 2px solid #00ffaa;
+            border-radius: 20px;
+            padding: 20px;
+            color: white;
+            min-width: 320px;
+            box-shadow: 0 0 30px rgba(0, 255, 170, 0.3);
+            pointer-events: auto;
+        }
+
+        #balance {
+            font-size: 48px;
+            font-weight: bold;
+            color: #00ffaa;
+            text-shadow: 0 0 20px #00ffaa;
+            line-height: 1.2;
+        }
+
+        #income {
+            font-size: 24px;
+            color: #ffaa00;
+            margin-top: 10px;
+        }
+
+        #mining-power {
+            font-size: 18px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        #controls-panel {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            padding: 12px 25px;
+            color: white;
+            font-size: 14px;
+            pointer-events: auto;
+        }
+
+        .key {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 10px;
+            border-radius: 8px;
+            margin: 0 4px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        #shop-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 400px;
+            background: rgba(20, 30, 45, 0.98);
+            backdrop-filter: blur(10px);
+            border: 2px solid #ffaa00;
+            border-radius: 25px;
+            padding: 20px;
+            color: white;
+            box-shadow: 0 0 40px rgba(255, 170, 0, 0.3);
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+            z-index: 1000;
+            pointer-events: auto;
+            transition: transform 0.3s ease;
+        }
+
+        #shop-panel.hidden {
+            transform: translateX(420px);
+        }
+
+        #toggle-shop {
+            position: absolute;
+            top: 20px;
+            right: 420px;
+            background: #ffaa00;
+            color: black;
+            border: none;
+            border-radius: 50px 0 0 50px;
+            padding: 15px 20px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1001;
+            transition: right 0.3s ease;
+            box-shadow: -5px 0 15px rgba(255, 170, 0, 0.3);
+        }
+
+        #toggle-shop.hidden {
+            right: 20px;
+            border-radius: 50px;
+        }
+
+        #shop-header {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #0f0c1f 0%, #1a1a2e 50%, #16213e 100%);
-            font-family: 'Arial', sans-serif;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 170, 0, 0.3);
+        }
+
+        #shop-header h2 {
+            color: #ffaa00;
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #shop-categories {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 170, 0, 0.3);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .category-btn:hover {
+            background: rgba(255, 170, 0, 0.2);
+            border-color: #ffaa00;
+        }
+
+        .category-btn.active {
+            background: #ffaa00;
+            color: black;
+            border-color: #ffaa00;
+        }
+
+        .shop-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 5px solid #ffaa00;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .shop-item:hover {
+            transform: translateX(-5px);
+            background: rgba(255, 170, 0, 0.15);
+            box-shadow: 0 5px 20px rgba(255, 170, 0, 0.3);
+        }
+
+        .shop-item.owned {
+            border-left-color: #00ffaa;
+            opacity: 0.9;
+        }
+
+        .shop-item.owned::after {
+            content: "✓";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #00ffaa;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .item-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #ffaa00;
+            margin-bottom: 5px;
+        }
+
+        .item-price {
+            color: #00ffaa;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .item-income {
+            color: #ffaa00;
+            font-size: 13px;
+        }
+
+        .item-specs {
+            font-size: 11px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        #action-buttons {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+            pointer-events: auto;
+        }
+
+        .action-btn {
+            padding: 20px 40px;
+            border: none;
+            border-radius: 60px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 0 30px;
+            min-width: 250px;
+        }
+
+        #mining-button {
+            background: linear-gradient(135deg, #00ffaa, #00cc88);
+            color: black;
+            box-shadow: 0 0 40px #00ffaa;
+            animation: pulse 2s infinite;
+        }
+
+        #boost-button {
+            background: linear-gradient(135deg, #ffaa00, #ff8800);
+            color: black;
+            box-shadow: 0 0 40px #ffaa00;
             position: relative;
             overflow: hidden;
         }
-        
-        /* Космический фон */
-        .stars, .twinkling, .nebula {
+
+        #boost-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            animation: none;
+            filter: grayscale(0.5);
+        }
+
+        #boost-cooldown {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            width: 0%;
+            transition: width 1s linear;
+            pointer-events: none;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .boost-active {
+            animation: boostPulse 0.5s infinite !important;
+        }
+
+        @keyframes boostPulse {
+            0% { box-shadow: 0 0 40px #ffaa00; }
+            50% { box-shadow: 0 0 80px #ffaa00, 0 0 120px #ff5500; }
+            100% { box-shadow: 0 0 40px #ffaa00; }
+        }
+
+        #progress-container {
+            position: absolute;
+            bottom: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 5px;
+            border: 2px solid #00ffaa;
+            z-index: 1000;
+        }
+
+        #progress-bar {
+            height: 30px;
+            background: linear-gradient(90deg, #00ffaa, #00cc88);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #progress-bar::after {
+            content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shine 2s infinite;
         }
-        
-        .stars {
-            background: #000 url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48Y2lyY2xlIGN4PSI2IiBjeT0iMTQiIHI9IjEiIGZpbGw9IndoaXRlIiAvPjxjaXJjbGUgY3g9IjE2MCIgY3k9IjYwIiByPSIxLjUiIGZpbGw9IndoaXRlIiAvPjxjaXJjbGUgY3g9IjQwIiBjeT0iMjAwIiByPSIxLjIiIGZpbGw9IndoaXRlIiAvPjxjaXJjbGUgY3g9IjI4MCIgY3k9IjE4MCIgcj0iMSIgZmlsbD0id2hpdGUiIC8+PGNpcmNsZSBjeD0iMjAiIGN5PSI4MCIgcj0iMSIgZmlsbD0id2hpdGUiIC8+PGNpcmNsZSBjeD0iMjUwIiBjeT0iMjUwIiByPSIxLjgiIGZpbGw9IndoaXRlIiAvPjxjaXJjbGUgY3g9IjcwIiBjeT0iMTUwIiByPSIxLjMiIGZpbGw9IndoaXRlIiAvPjxjaXJjbGUgY3g9IjE5MCIgY3k9IjkwIiByPSIxIiBmaWxsPSJ3aGl0ZSIgLz48L3N2Zz4=') repeat;
-            animation: starsMove 200s linear infinite;
-            opacity: 0.8;
-        }
-        
-        .twinkling {
-            background: transparent url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSIzIiBmaWxsPSJ3aGl0ZSIgb3BhY2l0eT0iMC44IiAvPjxjaXJjbGUgY3g9IjIwMCIgY3k9IjE1MCIgcj0iNCIgZmlsbD0iY3lhbiIgb3BhY2l0eT0iMC42IiAvPjxjaXJjbGUgY3g9IjMwMCIgY3k9IjI1MCIgcj0iMiIgZmlsbD0ibWFnZW50YSIgb3BhY2l0eT0iMC43IiAvPjxjaXJjbGUgY3g9IjE1MCIgY3k9IjMwMCIgcj0iMyIgZmlsbD0iYmx1ZSIgb3BhY2l0eT0iMC41IiAvPjwvc3ZnPg==') repeat;
-            animation: twinkling 3s ease-in-out infinite;
-        }
-        
-        .nebula {
-            background: radial-gradient(circle at 20% 30%, rgba(100, 0, 255, 0.1) 0%, transparent 30%),
-                        radial-gradient(circle at 80% 70%, rgba(255, 0, 200, 0.1) 0%, transparent 40%),
-                        radial-gradient(circle at 40% 80%, rgba(0, 200, 255, 0.1) 0%, transparent 50%);
-            animation: nebulaMove 30s ease-in-out infinite alternate;
-        }
-        
-        @keyframes starsMove {
-            from { transform: translateY(0); }
-            to { transform: translateY(-1000px); }
-        }
-        
-        @keyframes twinkling {
-            0% { opacity: 0.3; }
-            50% { opacity: 1; }
-            100% { opacity: 0.3; }
-        }
-        
-        @keyframes nebulaMove {
-            0% { transform: scale(1) rotate(0deg); }
-            100% { transform: scale(1.2) rotate(5deg); }
-        }
-        
-        .main-container {
-            display: flex;
-            gap: 20px;
-            z-index: 10;
-            position: relative;
-        }
-        
-        #gameContainer {
-            text-align: center;
-            background: rgba(20, 20, 40, 0.3);
-            backdrop-filter: blur(15px);
-            padding: 20px;
-            border-radius: 30px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(100, 0, 255, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        /* Магазин */
-        .shop-panel {
-            width: 300px;
-            background: rgba(20, 20, 40, 0.4);
-            backdrop-filter: blur(15px);
-            border-radius: 30px;
-            padding: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-            color: white;
-            max-height: 700px;
-            overflow-y: auto;
-        }
-        
-        .shop-header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .shop-header h2 {
-            font-size: 28px;
-            background: linear-gradient(45deg, gold, orange);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-        }
-        
-        .player-coins {
-            font-size: 24px;
-            color: gold;
-            text-shadow: 0 0 20px gold;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 10px;
-            border-radius: 50px;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-        }
-        
-        .shop-section {
-            margin-bottom: 25px;
-        }
-        
-        .shop-section h3 {
-            color: cyan;
-            margin-bottom: 15px;
-            font-size: 20px;
-            text-shadow: 0 0 10px cyan;
-        }
-        
-        .shop-item {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
-            padding: 12px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-        
-        .shop-item:hover {
-            transform: translateX(5px);
-            background: rgba(255, 255, 255, 0.1);
-            border-color: cyan;
-        }
-        
-        .shop-item.owned {
-            border-color: gold;
-            background: rgba(255, 215, 0, 0.1);
-            cursor: default;
-        }
-        
-        .shop-item.owned:hover {
-            transform: none;
-        }
-        
-        .shop-item.selected {
-            border-color: cyan;
-            background: rgba(0, 255, 255, 0.1);
-            box-shadow: 0 0 20px cyan;
-        }
-        
-        .item-preview {
-            width: 50px;
-            height: 50px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-            background: rgba(255, 255, 255, 0.1);
-        }
-        
-        .item-info {
-            flex: 1;
-            text-align: left;
-        }
-        
-        .item-name {
-            font-weight: bold;
-            margin-bottom: 3px;
-        }
-        
-        .item-price {
-            color: gold;
-            font-size: 14px;
-        }
-        
-        .item-price span {
-            color: white;
-            opacity: 0.7;
-        }
-        
-        .buy-button {
-            background: linear-gradient(45deg, gold, orange);
-            border: none;
+
+        #progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             color: black;
             font-weight: bold;
-            padding: 5px 15px;
-            border-radius: 20px;
+            font-size: 16px;
+            z-index: 1;
+        }
+
+        #computers-panel {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ffaa;
+            border-radius: 15px;
+            padding: 15px;
+            color: white;
+            z-index: 1000;
+            pointer-events: auto;
+            display: flex;
+            gap: 15px;
+            min-width: 500px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .computer-slot {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #ffaa00;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
             cursor: pointer;
-            font-size: 14px;
             transition: all 0.3s;
+            min-width: 100px;
         }
-        
-        .buy-button:hover {
+
+        .computer-slot:hover {
+            background: rgba(255, 170, 0, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .computer-slot.active {
+            border: 2px solid #00ffaa;
+            background: rgba(0, 255, 170, 0.1);
+        }
+
+        .computer-slot.empty {
+            border-color: #666;
+            opacity: 0.5;
+            cursor: default;
+        }
+
+        .computer-slot.empty:hover {
+            transform: none;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .computer-slot .power {
+            color: #00ffaa;
+            font-size: 12px;
+        }
+
+        #new-computer-btn {
+            background: linear-gradient(135deg, #00ffaa, #00cc88);
+            color: black;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+            box-shadow: 0 0 20px #00ffaa;
+        }
+
+        #new-computer-btn:hover {
             transform: scale(1.1);
-            box-shadow: 0 0 20px gold;
+            box-shadow: 0 0 30px #00ffaa;
         }
-        
-        .buy-button:disabled {
+
+        #new-computer-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
         }
-        
-        canvas {
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            background: transparent;
-            display: block;
-            margin: 0 auto;
-            border-radius: 20px;
-            box-shadow: 0 0 50px rgba(0, 255, 255, 0.2);
-        }
-        
-        .stats-panel {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 10px 0;
-            color: white;
-            font-size: 18px;
-            text-shadow: 0 0 15px cyan;
-            gap: 20px;
-        }
-        
-        #score, #highScore, #coins {
-            padding: 8px 20px;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(5px);
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-        
-        #coins {
-            color: gold;
-            text-shadow: 0 0 15px gold;
-        }
-        
-        .music-control {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 5px 15px;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .music-control:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: cyan;
-        }
-        
-        .music-icon {
-            font-size: 20px;
-        }
-        
-        .jetpack-timer {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 5px 15px;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .jetpack-icon {
-            font-size: 24px;
-            filter: drop-shadow(0 0 10px orange);
-        }
-        
-        #jetpackTimeFill {
-            width: 100px;
-            height: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 5px;
-            overflow: hidden;
-        }
-        
-        #jetpackProgress {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #ffaa00, #ff5500);
-            border-radius: 5px;
-            box-shadow: 0 0 15px #ffaa00;
-            transition: width 0.1s;
-        }
-        
-        #gameOver {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(10, 10, 20, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 50px;
-            border-radius: 40px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            text-align: center;
-            z-index: 1000;
-            color: white;
-            box-shadow: 0 0 100px rgba(255, 0, 255, 0.5);
-            animation: gameOverGlow 2s ease-in-out infinite;
-        }
-        
-        @keyframes gameOverGlow {
-            0% { box-shadow: 0 0 50px cyan; }
-            50% { box-shadow: 0 0 100px magenta; }
-            100% { box-shadow: 0 0 50px cyan; }
-        }
-        
-        #gameOver h2 {
-            font-size: 60px;
-            margin-bottom: 20px;
-            background: linear-gradient(45deg, cyan, magenta, yellow);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: none;
-        }
-        
-        #restartBtn {
-            background: linear-gradient(45deg, cyan, magenta);
-            color: white;
-            border: none;
-            padding: 15px 50px;
-            font-size: 24px;
-            border-radius: 60px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 30px;
-            font-weight: bold;
-            letter-spacing: 2px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        
-        #restartBtn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 50px magenta;
-        }
-        
-        .instructions {
-            margin-top: 15px;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 14px;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 12px;
-            border-radius: 20px;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .instructions kbd {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-            padding: 3px 10px;
-            margin: 0 3px;
-            color: cyan;
-            font-weight: bold;
-        }
-        
-        .powerup-indicator {
+
+        #notification {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 48px;
+            background: linear-gradient(135deg, #00ffaa, #00cc88);
+            color: black;
+            padding: 25px 60px;
+            border-radius: 60px;
+            font-size: 28px;
             font-weight: bold;
-            animation: powerupPop 1s ease-out forwards;
-            pointer-events: none;
-            z-index: 1000;
-            text-shadow: 0 0 30px currentColor;
+            z-index: 2000;
+            display: none;
+            box-shadow: 0 0 60px #00ffaa;
+            animation: notificationFade 2s ease-out;
             white-space: nowrap;
         }
-        
-        @keyframes powerupPop {
-            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-            50% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
-        }
-        
-        .crack-effect {
-            position: absolute;
-            pointer-events: none;
-            font-size: 30px;
-            animation: crackFly 0.5s ease-out forwards;
-            z-index: 100;
-        }
-        
-        @keyframes crackFly {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(2) translateY(-50px); opacity: 0; }
-        }
-        
-        #newRecord {
-            color: gold;
-            font-size: 28px;
-            margin: 20px 0;
-            animation: newRecordPulse 0.5s ease-in-out infinite;
-            text-shadow: 0 0 30px gold;
-        }
-        
-        @keyframes newRecordPulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
+
+        @keyframes notificationFade {
+            0% { opacity: 0; transform: translate(-50%, -30%); }
+            20% { opacity: 1; transform: translate(-50%, -50%); }
+            80% { opacity: 1; transform: translate(-50%, -50%); }
+            100% { opacity: 0; transform: translate(-50%, -70%); }
         }
 
-        .shop-panel::-webkit-scrollbar {
+        .floating-particle {
+            position: absolute;
+            color: #00ffaa;
+            font-weight: bold;
+            font-size: 24px;
+            pointer-events: none;
+            animation: floatUp 1.5s ease-out forwards;
+            z-index: 2000;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-200px); }
+        }
+
+        #boost-timer {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffaa00;
+            color: black;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 18px;
+            white-space: nowrap;
+        }
+
+        ::-webkit-scrollbar {
             width: 8px;
         }
-        
-        .shop-panel::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
         }
-        
-        .shop-panel::-webkit-scrollbar-thumb {
-            background: linear-gradient(cyan, magenta);
-            border-radius: 10px;
+
+        ::-webkit-scrollbar-thumb {
+            background: #ffaa00;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
-    <div class="stars"></div>
-    <div class="twinkling"></div>
-    <div class="nebula"></div>
-    
-    <div class="main-container">
-        <div id="gameContainer">
-            <div class="stats-panel">
-                <div id="score">🎯 Счет: 0</div>
-                <div id="coins">🪙 Монеты: 0</div>
-                <div class="music-control" id="musicToggle">
-                    <span class="music-icon" id="musicIcon">🔊</span>
-                    <span>Музыка</span>
-                </div>
-                <div class="jetpack-timer">
-                    <span class="jetpack-icon">🚀</span>
-                    <div id="jetpackTimeFill">
-                        <div id="jetpackProgress"></div>
-                    </div>
-                </div>
-                <div id="highScore">🏆 Рекорд: 0</div>
-            </div>
+    <div id="ui-container">
+        <div id="stats-panel">
+            <div style="font-size: 14px; color: #888; margin-bottom: 5px;">БАЛАНС</div>
+            <div id="balance">1000</div>
+            <div style="margin-top: 15px; font-size: 14px; color: #888;">ДОХОД В СЕКУНДУ</div>
+            <div id="income">0</div>
+            <div id="mining-power">Мощность фермы: 0 GH/s</div>
             
-            <canvas id="gameCanvas" width="400" height="600"></canvas>
-            
-            <div class="instructions">
-                <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> или <kbd>← ↑ → ↓</kbd> - движение | 
-                <kbd>ПРОБЕЛ</kbd> - активировать ранец | 
-                <kbd>R</kbd> - рестарт
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
+                <div style="background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: bold; color: #ffaa00;" id="computers-count">1</div>
+                    <div style="font-size: 12px; color: #888;">Компьютеров</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: bold; color: #00ffaa;" id="total-parts">0</div>
+                    <div style="font-size: 12px; color: #888;">Компонентов</div>
+                </div>
             </div>
         </div>
 
-        <!-- Магазин -->
-        <div class="shop-panel">
-            <div class="shop-header">
-                <h2>🛒 МАГАЗИН</h2>
-                <div class="player-coins" id="shopCoins">🪙 0</div>
-            </div>
-            
-            <!-- Скины шарика -->
-            <div class="shop-section">
-                <h3>🎨 СКИНЫ ШАРИКА</h3>
-                <div id="ballSkins"></div>
-            </div>
-            
-            <!-- Скины фона -->
-            <div class="shop-section">
-                <h3>🌌 СКИНЫ ФОНА</h3>
-                <div id="backgroundSkins"></div>
-            </div>
-            
-            <!-- Бонусы -->
-            <div class="shop-section">
-                <h3>⚡ БОНУСЫ</h3>
-                <div id="bonuses"></div>
-            </div>
+        <div id="controls-panel">
+            <span class="key">🖱 ЛКМ</span> вращать
+            <span class="key">🖱 ПКМ</span> двигать
+            <span class="key">R</span> сброс камеры
         </div>
     </div>
-    
-    <div id="gameOver">
-        <h2>GAME OVER</h2>
-        <p style="font-size: 32px; margin: 20px 0;">Счет: <span id="finalScore">0</span></p>
-        <p style="font-size: 24px;">Монеты: <span id="finalCoins">0</span></p>
-        <p style="font-size: 24px;">Рекорд: <span id="finalHighScore">0</span></p>
-        <div id="newRecord" style="display: none;">🌟 НОВЫЙ РЕКОРД! 🌟</div>
-        <button id="restartBtn">ИГРАТЬ СНОВА</button>
+
+    <button id="toggle-shop">◀ Скрыть магазин</button>
+
+    <div id="shop-panel">
+        <div id="shop-header">
+            <h2>🏪 МАГАЗИН КОМПЛЕКТУЮЩИХ</h2>
+        </div>
+        
+        <div id="shop-categories">
+            <button class="category-btn active" onclick="filterCategory('all')">Все</button>
+            <button class="category-btn" onclick="filterCategory('cpu')">Процессоры</button>
+            <button class="category-btn" onclick="filterCategory('gpu')">Видеокарты</button>
+            <button class="category-btn" onclick="filterCategory('ram')">ОЗУ</button>
+            <button class="category-btn" onclick="filterCategory('storage')">Накопители</button>
+            <button class="category-btn" onclick="filterCategory('cooling')">Охлаждение</button>
+            <button class="category-btn" onclick="filterCategory('psu')">БП</button>
+        </div>
+
+        <div id="shop-items"></div>
     </div>
 
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const scoreElement = document.getElementById('score');
-        const coinsElement = document.getElementById('coins');
-        const shopCoinsElement = document.getElementById('shopCoins');
-        const highScoreElement = document.getElementById('highScore');
-        const jetpackProgress = document.getElementById('jetpackProgress');
-        const gameOverElement = document.getElementById('gameOver');
-        const finalScoreElement = document.getElementById('finalScore');
-        const finalCoinsElement = document.getElementById('finalCoins');
-        const finalHighScoreElement = document.getElementById('finalHighScore');
-        const newRecordElement = document.getElementById('newRecord');
-        const restartBtn = document.getElementById('restartBtn');
-        const musicToggle = document.getElementById('musicToggle');
-        const musicIcon = document.getElementById('musicIcon');
+    <div id="computers-panel">
+        <div id="computers-list"></div>
+        <button id="new-computer-btn">➕ Купить новый ПК (2000💰) 1/6</button>
+    </div>
 
-        // ========== МУЗЫКА ==========
-        let audioContext;
-        let isMusicPlaying = false;
-        let musicNodes = [];
+    <div id="action-buttons">
+        <button id="mining-button" class="action-btn">⛏ МАЙНИНГ</button>
+        <button id="boost-button" class="action-btn">
+            ⚡ X2 БУСТ
+            <div id="boost-cooldown"></div>
+            <div id="boost-timer"></div>
+        </button>
+    </div>
 
-        function initAudio() {
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                
-                // Создаем спокойную мелодию
-                createBackgroundMusic();
-                
-                // Автоматически запускаем после первого взаимодействия
-                document.addEventListener('click', function initAudioOnClick() {
-                    if (audioContext.state === 'suspended') {
-                        audioContext.resume();
-                    }
-                    document.removeEventListener('click', initAudioOnClick);
-                }, { once: true });
-                
-            } catch (e) {
-                console.log('Web Audio API не поддерживается');
+    <div id="progress-container">
+        <div id="progress-bar">
+            <div id="progress-text">0%</div>
+        </div>
+    </div>
+
+    <div id="notification">+100 монет!</div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
             }
         }
+    </script>
 
-        function createBackgroundMusic() {
-            if (!audioContext) return;
-            
-            // Останавливаем старую музыку
-            musicNodes.forEach(node => {
-                if (node.stop) node.stop();
-            });
-            musicNodes = [];
-            
-            // Создаем спокойную фоновую мелодию
-            const now = audioContext.currentTime;
-            
-            // Основной бас (простая последовательность)
-            const bassNotes = [55, 55, 57, 59, 55, 55, 57, 62]; // Ноты для баса
-            bassNotes.forEach((note, i) => {
-                const osc = audioContext.createOscillator();
-                const gain = audioContext.createGain();
-                
-                osc.type = 'sine';
-                osc.frequency.value = note;
-                
-                gain.gain.setValueAtTime(0, now + i * 0.5);
-                gain.gain.linearRampToValueAtTime(0.1, now + i * 0.5 + 0.1);
-                gain.gain.linearRampToValueAtTime(0, now + i * 0.5 + 0.4);
-                
-                osc.connect(gain);
-                gain.connect(audioContext.destination);
-                
-                osc.start(now + i * 0.5);
-                osc.stop(now + i * 0.5 + 0.4);
-                
-                musicNodes.push(osc);
-            });
-            
-            // Мелодия (арпеджио)
-            const melodyNotes = [69, 72, 76, 72, 69, 76, 72, 69];
-            melodyNotes.forEach((note, i) => {
-                const osc = audioContext.createOscillator();
-                const gain = audioContext.createGain();
-                
-                osc.type = 'triangle';
-                osc.frequency.value = note;
-                
-                gain.gain.setValueAtTime(0, now + i * 0.25 + 2);
-                gain.gain.linearRampToValueAtTime(0.05, now + i * 0.25 + 2.1);
-                gain.gain.linearRampToValueAtTime(0, now + i * 0.25 + 2.3);
-                
-                osc.connect(gain);
-                gain.connect(audioContext.destination);
-                
-                osc.start(now + i * 0.25 + 2);
-                osc.stop(now + i * 0.25 + 2.3);
-                
-                musicNodes.push(osc);
-            });
-            
-            // Аккорды (подложка)
-            [0, 4, 8].forEach((time, i) => {
-                const chord = [60, 64, 67]; // До мажор
-                chord.forEach(note => {
-                    const osc = audioContext.createOscillator();
-                    const gain = audioContext.createGain();
-                    
-                    osc.type = 'sine';
-                    osc.frequency.value = note;
-                    
-                    gain.gain.setValueAtTime(0, now + time);
-                    gain.gain.linearRampToValueAtTime(0.03, now + time + 0.5);
-                    gain.gain.linearRampToValueAtTime(0, now + time + 3.5);
-                    
-                    osc.connect(gain);
-                    gain.connect(audioContext.destination);
-                    
-                    osc.start(now + time);
-                    osc.stop(now + time + 3.5);
-                    
-                    musicNodes.push(osc);
-                });
-            });
-            
-            // Зацикливаем
-            setTimeout(() => {
-                if (isMusicPlaying) {
-                    createBackgroundMusic();
-                }
-            }, 8000);
-        }
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'https://unpkg.com/three@0.128.0/examples/jsm/controls/OrbitControls.js';
 
-        function toggleMusic() {
-            if (!audioContext) {
-                initAudio();
+        // ============ РАСШИРЕННЫЙ СПИСОК КОМПЛЕКТУЮЩИХ ============
+        const componentsData = [
+            // Процессоры
+            { id: 'cpu_i3', name: 'Intel Core i3-12100', category: 'cpu', price: 150, income: 3, power: 4, tier: 1, icon: '🔹', specs: '4 ядра, 8 потоков' },
+            { id: 'cpu_i5', name: 'Intel Core i5-13600K', category: 'cpu', price: 350, income: 8, power: 14, tier: 2, icon: '🔶', specs: '14 ядер, 20 потоков' },
+            { id: 'cpu_i7', name: 'Intel Core i7-13700K', category: 'cpu', price: 500, income: 15, power: 20, tier: 3, icon: '💠', specs: '16 ядер, 24 потока' },
+            { id: 'cpu_i9', name: 'Intel Core i9-13900KS', category: 'cpu', price: 800, income: 25, power: 30, tier: 4, icon: '💎', specs: '24 ядра, 32 потока' },
+            { id: 'cpu_ryzen5', name: 'AMD Ryzen 5 7600X', category: 'cpu', price: 300, income: 7, power: 12, tier: 2, icon: '🔸', specs: '6 ядер, 12 потоков' },
+            { id: 'cpu_ryzen7', name: 'AMD Ryzen 7 7800X3D', category: 'cpu', price: 550, income: 18, power: 22, tier: 3, icon: '🔷', specs: '8 ядер, 16 потоков' },
+            { id: 'cpu_ryzen9', name: 'AMD Ryzen 9 7950X', category: 'cpu', price: 900, income: 30, power: 35, tier: 4, icon: '⚡', specs: '16 ядер, 32 потока' },
+            { id: 'cpu_threadripper', name: 'AMD Threadripper 7980X', category: 'cpu', price: 2500, income: 80, power: 80, tier: 5, icon: '👑', specs: '64 ядра, 128 потоков' },
+
+            // Видеокарты
+            { id: 'gpu_1650', name: 'NVIDIA GTX 1650', category: 'gpu', price: 200, income: 5, power: 6, tier: 1, icon: '🎮', specs: '4GB GDDR6' },
+            { id: 'gpu_1660', name: 'NVIDIA GTX 1660 Super', category: 'gpu', price: 300, income: 8, power: 10, tier: 2, icon: '🎯', specs: '6GB GDDR6' },
+            { id: 'gpu_2060', name: 'NVIDIA RTX 2060', category: 'gpu', price: 400, income: 12, power: 15, tier: 2, icon: '✨', specs: '6GB GDDR6' },
+            { id: 'gpu_3060', name: 'NVIDIA RTX 3060 Ti', category: 'gpu', price: 600, income: 20, power: 25, tier: 3, icon: '⚡', specs: '8GB GDDR6' },
+            { id: 'gpu_3070', name: 'NVIDIA RTX 3070', category: 'gpu', price: 800, income: 30, power: 35, tier: 3, icon: '💫', specs: '8GB GDDR6' },
+            { id: 'gpu_3080', name: 'NVIDIA RTX 3080', category: 'gpu', price: 1200, income: 45, power: 50, tier: 4, icon: '🚀', specs: '10GB GDDR6X' },
+            { id: 'gpu_3090', name: 'NVIDIA RTX 3090 Ti', category: 'gpu', price: 2000, income: 70, power: 75, tier: 5, icon: '💥', specs: '24GB GDDR6X' },
+            { id: 'gpu_4090', name: 'NVIDIA RTX 4090', category: 'gpu', price: 3000, income: 120, power: 120, tier: 6, icon: '👑', specs: '24GB GDDR6X' },
+            { id: 'gpu_rx6600', name: 'AMD RX 6600 XT', category: 'gpu', price: 450, income: 15, power: 18, tier: 2, icon: '🔴', specs: '8GB GDDR6' },
+            { id: 'gpu_rx6700', name: 'AMD RX 6700 XT', category: 'gpu', price: 650, income: 25, power: 28, tier: 3, icon: '❤️', specs: '12GB GDDR6' },
+            { id: 'gpu_rx6800', name: 'AMD RX 6800 XT', category: 'gpu', price: 900, income: 40, power: 45, tier: 4, icon: '🔥', specs: '16GB GDDR6' },
+            { id: 'gpu_rx7900', name: 'AMD RX 7900 XTX', category: 'gpu', price: 2500, income: 100, power: 100, tier: 6, icon: '⭐', specs: '24GB GDDR6' },
+
+            // ОПЕРАТИВНАЯ ПАМЯТЬ (УВЕЛИЧЕНО)
+            { id: 'ram_4gb', name: 'DDR3 4GB 1600MHz', category: 'ram', price: 30, income: 0.5, power: 1, tier: 1, icon: '💾', specs: '4GB, CL11' },
+            { id: 'ram_8gb', name: 'DDR4 8GB 3200MHz', category: 'ram', price: 50, income: 1, power: 2, tier: 1, icon: '🧠', specs: '8GB, CL16' },
+            { id: 'ram_16gb', name: 'DDR4 16GB 3600MHz', category: 'ram', price: 90, income: 2, power: 4, tier: 2, icon: '🧮', specs: '16GB, CL18' },
+            { id: 'ram_32gb', name: 'DDR4 32GB 3600MHz', category: 'ram', price: 180, income: 4, power: 8, tier: 3, icon: '💿', specs: '32GB, CL18' },
+            { id: 'ram_64gb', name: 'DDR4 64GB 3200MHz', category: 'ram', price: 350, income: 8, power: 15, tier: 4, icon: '📀', specs: '64GB, CL16' },
+            { id: 'ram_ddr5_16', name: 'DDR5 16GB 6000MHz', category: 'ram', price: 150, income: 3, power: 6, tier: 3, icon: '⚡', specs: '16GB, CL36' },
+            { id: 'ram_ddr5_32', name: 'DDR5 32GB 6000MHz', category: 'ram', price: 280, income: 6, power: 12, tier: 4, icon: '💨', specs: '32GB, CL36' },
+            { id: 'ram_ddr5_64', name: 'DDR5 64GB 6400MHz', category: 'ram', price: 550, income: 12, power: 24, tier: 5, icon: '🚀', specs: '64GB, CL32' },
+            { id: 'ram_ddr5_128', name: 'DDR5 128GB 5600MHz', category: 'ram', price: 1200, income: 25, power: 45, tier: 6, icon: '💎', specs: '128GB, CL40' },
+            { id: 'ram_ecc', name: 'DDR4 ECC 64GB Server', category: 'ram', price: 800, income: 18, power: 30, tier: 5, icon: '🔒', specs: '64GB, ECC' },
+
+            // НАКОПИТЕЛИ (УВЕЛИЧЕНО)
+            { id: 'ssd_120', name: 'SSD 120GB SATA', category: 'storage', price: 30, income: 0.5, power: 1, tier: 1, icon: '💿', specs: '120GB, 450MB/s' },
+            { id: 'ssd_240', name: 'SSD 240GB SATA', category: 'storage', price: 45, income: 0.8, power: 1.5, tier: 1, icon: '💿', specs: '240GB, 500MB/s' },
+            { id: 'ssd_480', name: 'SSD 480GB SATA', category: 'storage', price: 60, income: 1.2, power: 2, tier: 2, icon: '💿', specs: '480GB, 550MB/s' },
+            { id: 'ssd_500', name: 'SSD 500GB NVMe', category: 'storage', price: 80, income: 2, power: 3, tier: 2, icon: '⚡', specs: '500GB, 3500MB/s' },
+            { id: 'ssd_1tb', name: 'SSD 1TB NVMe', category: 'storage', price: 150, income: 3, power: 4, tier: 3, icon: '💨', specs: '1TB, 5000MB/s' },
+            { id: 'ssd_2tb', name: 'SSD 2TB NVMe', category: 'storage', price: 280, income: 5, power: 7, tier: 4, icon: '🚀', specs: '2TB, 7000MB/s' },
+            { id: 'ssd_4tb', name: 'SSD 4TB NVMe', category: 'storage', price: 550, income: 10, power: 13, tier: 5, icon: '💫', specs: '4TB, 7000MB/s' },
+            { id: 'ssd_8tb', name: 'SSD 8TB NVMe', category: 'storage', price: 1200, income: 20, power: 25, tier: 6, icon: '🌟', specs: '8TB, 7000MB/s' },
+            { id: 'hdd_500', name: 'HDD 500GB', category: 'storage', price: 25, income: 0.3, power: 0.5, tier: 1, icon: '💽', specs: '500GB, 150MB/s' },
+            { id: 'hdd_1tb', name: 'HDD 1TB 7200rpm', category: 'storage', price: 50, income: 0.6, power: 1, tier: 1, icon: '💽', specs: '1TB, 160MB/s' },
+            { id: 'hdd_2tb', name: 'HDD 2TB 7200rpm', category: 'storage', price: 80, income: 1, power: 1.5, tier: 2, icon: '💽', specs: '2TB, 180MB/s' },
+            { id: 'hdd_4tb', name: 'HDD 4TB 7200rpm', category: 'storage', price: 120, income: 1.5, power: 2, tier: 2, icon: '📀', specs: '4TB, 180MB/s' },
+            { id: 'hdd_8tb', name: 'HDD 8TB 7200rpm', category: 'storage', price: 200, income: 2.5, power: 3, tier: 3, icon: '📀', specs: '8TB, 200MB/s' },
+            { id: 'hdd_10tb', name: 'HDD 10TB 7200rpm', category: 'storage', price: 300, income: 3.5, power: 4, tier: 3, icon: '💿', specs: '10TB, 210MB/s' },
+            { id: 'hdd_14tb', name: 'HDD 14TB 7200rpm', category: 'storage', price: 450, income: 5, power: 6, tier: 4, icon: '💿', specs: '14TB, 220MB/s' },
+            { id: 'hdd_18tb', name: 'HDD 18TB 7200rpm', category: 'storage', price: 600, income: 7, power: 8, tier: 5, icon: '📀', specs: '18TB, 240MB/s' },
+            { id: 'hdd_20tb', name: 'HDD 20TB 7200rpm', category: 'storage', price: 800, income: 9, power: 10, tier: 5, icon: '📀', specs: '20TB, 250MB/s' },
+
+            // ОХЛАЖДЕНИЕ (УВЕЛИЧЕНО)
+            { id: 'cooler_air', name: 'Воздушный кулер', category: 'cooling', price: 50, income: 1, power: 2, tier: 1, icon: '🌀', specs: 'TDP 150W' },
+            { id: 'cooler_air_pro', name: 'Башенный кулер', category: 'cooling', price: 120, income: 2, power: 4, tier: 2, icon: '💨', specs: 'TDP 220W' },
+            { id: 'cooler_air_dual', name: 'Двухбашенный кулер', category: 'cooling', price: 200, income: 3, power: 6, tier: 3, icon: '🌪️', specs: 'TDP 280W' },
+            { id: 'aio_120', name: 'Жидкостное охлаждение 120мм', category: 'cooling', price: 150, income: 3, power: 5, tier: 3, icon: '💧', specs: 'TDP 200W' },
+            { id: 'aio_240', name: 'Жидкостное охлаждение 240мм', category: 'cooling', price: 250, income: 5, power: 8, tier: 4, icon: '🌊', specs: 'TDP 280W' },
+            { id: 'aio_280', name: 'Жидкостное охлаждение 280мм', category: 'cooling', price: 320, income: 6.5, power: 10, tier: 4, icon: '💧', specs: 'TDP 320W' },
+            { id: 'aio_360', name: 'Жидкостное охлаждение 360мм', category: 'cooling', price: 400, income: 8, power: 12, tier: 5, icon: '💦', specs: 'TDP 350W' },
+            { id: 'aio_420', name: 'Жидкостное охлаждение 420мм', category: 'cooling', price: 550, income: 11, power: 16, tier: 6, icon: '🌊', specs: 'TDP 400W' },
+            { id: 'custom_loop', name: 'Кастомная СЖО', category: 'cooling', price: 800, income: 15, power: 20, tier: 6, icon: '🔮', specs: 'TDP 500W+' },
+            { id: 'phase_change', name: 'Фазовый переход', category: 'cooling', price: 1500, income: 25, power: 35, tier: 7, icon: '❄️', specs: 'Экстремальное' },
+            { id: 'liquid_nitrogen', name: 'Жидкий азот', category: 'cooling', price: 2500, income: 40, power: 50, tier: 8, icon: '🧊', specs: '-196°C' },
+
+            // БЛОКИ ПИТАНИЯ (УВЕЛИЧЕНО)
+            { id: 'psu_400w', name: 'БП 400W Bronze', category: 'psu', price: 60, income: 1, power: 2, tier: 1, icon: '🔌', specs: '400W, 80+ Bronze' },
+            { id: 'psu_500w', name: 'БП 500W Bronze', category: 'psu', price: 80, income: 1.5, power: 3, tier: 1, icon: '🔌', specs: '500W, 80+ Bronze' },
+            { id: 'psu_550w', name: 'БП 550W Gold', category: 'psu', price: 120, income: 2, power: 4, tier: 2, icon: '⚡', specs: '550W, 80+ Gold' },
+            { id: 'psu_650w', name: 'БП 650W Gold', category: 'psu', price: 160, income: 3, power: 5, tier: 2, icon: '⚡', specs: '650W, 80+ Gold' },
+            { id: 'psu_750w', name: 'БП 750W Gold', category: 'psu', price: 200, income: 4, power: 7, tier: 3, icon: '💡', specs: '750W, 80+ Gold' },
+            { id: 'psu_850w', name: 'БП 850W Platinum', category: 'psu', price: 300, income: 6, power: 10, tier: 4, icon: '🔋', specs: '850W, 80+ Platinum' },
+            { id: 'psu_1000w', name: 'БП 1000W Platinum', category: 'psu', price: 450, income: 9, power: 14, tier: 5, icon: '⚡', specs: '1000W, 80+ Platinum' },
+            { id: 'psu_1200w', name: 'БП 1200W Titanium', category: 'psu', price: 700, income: 14, power: 20, tier: 6, icon: '💎', specs: '1200W, 80+ Titanium' },
+            { id: 'psu_1600w', name: 'БП 1600W Titanium', category: 'psu', price: 1200, income: 22, power: 30, tier: 7, icon: '👑', specs: '1600W, 80+ Titanium' },
+            { id: 'psu_2000w', name: 'БП 2000W Server', category: 'psu', price: 2000, income: 35, power: 45, tier: 8, icon: '🏭', specs: '2000W, Redundant' },
+            { id: 'psu_2400w', name: 'БП 2400W Server', category: 'psu', price: 3000, income: 50, power: 60, tier: 9, icon: '⚙️', specs: '2400W, Redundant' }
+        ];
+
+        // Система компьютеров - начинаем с 1 ПК
+        let computers = [
+            {
+                id: 0,
+                name: 'ПК #1',
+                components: new Array(componentsData.length).fill(false),
+                totalIncome: 0,
+                totalPower: 0,
+                position: 0
             }
-            
-            if (isMusicPlaying) {
-                // Выключаем
-                musicNodes.forEach(node => {
-                    if (node.stop) node.stop();
-                });
-                musicNodes = [];
-                musicIcon.textContent = '🔇';
-                isMusicPlaying = false;
-            } else {
-                // Включаем
-                if (audioContext.state === 'suspended') {
-                    audioContext.resume();
-                }
-                createBackgroundMusic();
-                musicIcon.textContent = '🔊';
-                isMusicPlaying = true;
+        ];
+        
+        let currentComputer = 0;
+        let balance = 1000;
+        let totalIncome = 0;
+        let totalPower = 0;
+        let miningProgress = 0;
+        let currentCategory = 'all';
+
+        // Boost система
+        let boostActive = false;
+        let boostEndTime = 0;
+        let boostCooldown = false;
+        let boostCooldownEnd = 0;
+        const BOOST_DURATION = 10;
+        const BOOST_COOLDOWN = 300;
+
+        // Состояние магазина
+        let shopHidden = false;
+
+        // ============ 3D СЦЕНА ============
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0a0a1a);
+        scene.fog = new THREE.Fog(0x0a0a1a, 20, 60);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(8, 5, 12);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.5;
+        controls.enableZoom = true;
+        controls.maxPolarAngle = Math.PI / 2;
+        controls.minDistance = 5;
+        controls.maxDistance = 25;
+        controls.target.set(0, 2, 0);
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'r' || e.key === 'R') {
+                camera.position.set(8, 5, 12);
+                controls.target.set(0, 2, 0);
             }
-        }
-
-        musicToggle.addEventListener('click', toggleMusic);
-
-        // Инициализируем аудио при загрузке
-        window.addEventListener('load', () => {
-            initAudio();
-            // Автоматически включаем музыку через небольшое время
-            setTimeout(() => {
-                if (!isMusicPlaying) {
-                    toggleMusic();
-                }
-            }, 1000);
         });
 
-        // ========== ИГРОВАЯ ЛОГИКА ==========
-        
-        // Загружаем данные из localStorage
-        let highScore = localStorage.getItem('doodleHighScore') ? parseInt(localStorage.getItem('doodleHighScore')) : 0;
-        let coins = localStorage.getItem('doodleCoins') ? parseInt(localStorage.getItem('doodleCoins')) : 0;
-        
-        // Скины и предметы
-        let ownedItems = localStorage.getItem('doodleOwned') ? JSON.parse(localStorage.getItem('doodleOwned')) : {
-            balls: ['default'],
-            backgrounds: ['default'],
-            bonuses: []
-        };
-        
-        let selectedSkin = localStorage.getItem('doodleSelectedSkin') || 'default';
-        let selectedBackground = localStorage.getItem('doodleSelectedBackground') || 'default';
-        let activeBonuses = localStorage.getItem('doodleBonuses') ? JSON.parse(localStorage.getItem('doodleBonuses')) : {};
+        // Освещение
+        const ambientLight = new THREE.AmbientLight(0x404060);
+        scene.add(ambientLight);
 
-        // Магазин предметов - НОВЫЕ СКИНЫ!
-        const shopItems = {
-            balls: [
-                { id: 'default', name: 'Классический', price: 0, emoji: '😊', color: '#FFE66D', pattern: 'solid' },
-                { id: 'panda', name: 'Панда', price: 150, emoji: '🐼', color: '#FFFFFF', pattern: 'panda' },
-                { id: 'cow', name: 'Коровка', price: 200, emoji: '🐮', color: '#F5F5DC', pattern: 'cow' },
-                { id: 'penguin', name: 'Пингвин', price: 250, emoji: '🐧', color: '#1E3A5F', pattern: 'penguin' },
-                { id: 'bee', name: 'Пчелка', price: 300, emoji: '🐝', color: '#FFD700', pattern: 'bee' },
-                { id: 'ladybug', name: 'Божья коровка', price: 350, emoji: '🐞', color: '#FF4444', pattern: 'ladybug' },
-                { id: 'octopus', name: 'Осьминог', price: 400, emoji: '🐙', color: '#FF69B4', pattern: 'octopus' },
-                { id: 'dragon', name: 'Дракон', price: 500, emoji: '🐲', color: '#50C878', pattern: 'dragon' },
-                { id: 'unicorn', name: 'Единорог', price: 600, emoji: '🦄', color: '#C8A2C8', pattern: 'unicorn' },
-                { id: 'rainbow', name: 'Радужный', price: 800, emoji: '🌈', color: 'rainbow', pattern: 'rainbow' }
-            ],
-            backgrounds: [
-                { id: 'default', name: 'Космос', price: 0, emoji: '🌌', style: 'cosmic' },
-                { id: 'sunset', name: 'Закат', price: 200, emoji: '🌅', style: 'sunset' },
-                { id: 'forest', name: 'Лес', price: 300, emoji: '🌳', style: 'forest' },
-                { id: 'ocean', name: 'Океан', price: 400, emoji: '🌊', style: 'ocean' },
-                { id: 'cyber', name: 'Киберпанк', price: 600, emoji: '🤖', style: 'cyber' },
-                { id: 'magic', name: 'Магия', price: 800, emoji: '✨', style: 'magic' }
-            ],
-            bonuses: [
-                { id: 'doubleCoins', name: 'Двойные монеты', price: 500, emoji: '🪙', description: 'Монет ×2', duration: 'постоянно' },
-                { id: 'longJetpack', name: 'Долгий ранец', price: 300, emoji: '🚀', description: '+3 сек к ранцу', duration: 'постоянно' },
-                { id: 'shield', name: 'Щит', price: 400, emoji: '🛡️', description: '1 доп. жизнь', duration: '1 раз' },
-                { id: 'magnet', name: 'Магнит', price: 600, emoji: '🧲', description: 'Притягивает монеты', duration: 'постоянно' },
-                { id: 'slowMotion', name: 'Замедление', price: 450, emoji: '⏱️', description: 'Медленное падение', duration: 'постоянно' },
-                { id: 'tripleJump', name: 'Тройной прыжок', price: 700, emoji: '🦘', description: '3 прыжка в воздухе', duration: 'постоянно' }
-            ]
-        };
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        dirLight.position.set(5, 10, 7);
+        dirLight.castShadow = true;
+        dirLight.receiveShadow = true;
+        dirLight.shadow.mapSize.width = 2048;
+        dirLight.shadow.mapSize.height = 2048;
+        scene.add(dirLight);
 
-        // Обновление отображения монет
-        function updateCoinsDisplay() {
-            coinsElement.textContent = `🪙 Монеты: ${coins}`;
-            shopCoinsElement.textContent = `🪙 ${coins}`;
-            localStorage.setItem('doodleCoins', coins);
+        // Пол
+        const floorGeometry = new THREE.CircleGeometry(30, 32);
+        const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.3 });
+        const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+        floor.rotation.x = -Math.PI / 2;
+        floor.position.y = -0.1;
+        floor.receiveShadow = true;
+        scene.add(floor);
+
+        const gridHelper = new THREE.GridHelper(30, 30, 0x00ffaa, 0x3366ff);
+        gridHelper.position.y = 0;
+        scene.add(gridHelper);
+
+        // ============ ФУНКЦИЯ СОЗДАНИЯ КОРПУСА ============
+        function createComputerCase(posX, posZ, index) {
+            const group = new THREE.Group();
+            
+            const caseMaterial = new THREE.MeshStandardMaterial({ color: 0x222233, roughness: 0.4, metalness: 0.6 });
+            const glassMaterial = new THREE.MeshStandardMaterial({ color: 0x88aaff, transparent: true, opacity: 0.25 });
+            
+            const w = 3, h = 4, d = 3;
+            
+            // Стекло спереди
+            const glass = new THREE.Mesh(new THREE.BoxGeometry(w - 0.4, h - 0.4, 0.2), glassMaterial);
+            glass.position.set(0, h/2, d/2 - 0.1);
+            glass.castShadow = true;
+            glass.receiveShadow = true;
+            group.add(glass);
+            
+            // Корпус
+            const back = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.3), caseMaterial);
+            back.position.set(0, h/2, -d/2);
+            back.castShadow = true;
+            back.receiveShadow = true;
+            group.add(back);
+            
+            const left = new THREE.Mesh(new THREE.BoxGeometry(0.3, h, d), caseMaterial);
+            left.position.set(-w/2, h/2, 0);
+            left.castShadow = true;
+            left.receiveShadow = true;
+            group.add(left);
+            
+            const right = new THREE.Mesh(new THREE.BoxGeometry(0.3, h, d), caseMaterial);
+            right.position.set(w/2, h/2, 0);
+            right.castShadow = true;
+            right.receiveShadow = true;
+            group.add(right);
+            
+            const top = new THREE.Mesh(new THREE.BoxGeometry(w, 0.3, d), caseMaterial);
+            top.position.set(0, h, 0);
+            top.castShadow = true;
+            top.receiveShadow = true;
+            group.add(top);
+            
+            const bottom = new THREE.Mesh(new THREE.BoxGeometry(w, 0.3, d), caseMaterial);
+            bottom.position.set(0, 0, 0);
+            bottom.castShadow = true;
+            bottom.receiveShadow = true;
+            group.add(bottom);
+            
+            // RGB подсветка
+            const rgb = new THREE.Mesh(new THREE.BoxGeometry(w - 0.5, 0.1, d - 0.5), 
+                new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: new THREE.Color(0x00ffaa) }));
+            rgb.position.set(0, 0.2, 0);
+            rgb.castShadow = true;
+            group.add(rgb);
+            
+            // Номер компьютера
+            const canvas = document.createElement('canvas');
+            canvas.width = 128;
+            canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#00ffaa';
+            ctx.font = 'bold 60px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('#' + (index + 1), 64, 64);
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            const numberMat = new THREE.SpriteMaterial({ map: texture });
+            const numberSprite = new THREE.Sprite(numberMat);
+            numberSprite.scale.set(0.5, 0.5, 0.5);
+            numberSprite.position.set(0, 3.5, 1.5);
+            group.add(numberSprite);
+            
+            group.position.set(posX, 0, posZ);
+            return group;
         }
 
-        // Отрисовка магазина
-        function renderShop() {
-            // Скины шарика
-            const ballSkinsDiv = document.getElementById('ballSkins');
-            ballSkinsDiv.innerHTML = '';
-            shopItems.balls.forEach(item => {
-                const owned = ownedItems.balls.includes(item.id);
-                const selected = selectedSkin === item.id;
-                
-                const div = document.createElement('div');
-                div.className = `shop-item ${owned ? 'owned' : ''} ${selected ? 'selected' : ''}`;
-                
-                div.innerHTML = `
-                    <div class="item-preview">${item.emoji}</div>
-                    <div class="item-info">
-                        <div class="item-name">${item.name}</div>
-                        <div class="item-price">${item.price === 0 ? 'Бесплатно' : `💰 ${item.price} <span>монет</span>`}</div>
-                    </div>
-                    ${!owned ? `<button class="buy-button" onclick="window.buyItem('ball', '${item.id}', ${item.price})">Купить</button>` : 
-                      !selected ? `<button class="buy-button" onclick="window.selectItem('ball', '${item.id}')">Выбрать</button>` :
-                      '<button class="buy-button" disabled>Выбрано</button>'}
-                `;
-                
-                ballSkinsDiv.appendChild(div);
-            });
+        // Создаем первый компьютер в центре
+        const computerModels = [];
+        const firstComputer = createComputerCase(0, 0, 0);
+        scene.add(firstComputer);
+        computerModels.push(firstComputer);
 
-            // Скины фона
-            const bgSkinsDiv = document.getElementById('backgroundSkins');
-            bgSkinsDiv.innerHTML = '';
-            shopItems.backgrounds.forEach(item => {
-                const owned = ownedItems.backgrounds.includes(item.id);
-                const selected = selectedBackground === item.id;
-                
-                const div = document.createElement('div');
-                div.className = `shop-item ${owned ? 'owned' : ''} ${selected ? 'selected' : ''}`;
-                
-                div.innerHTML = `
-                    <div class="item-preview">${item.emoji}</div>
-                    <div class="item-info">
-                        <div class="item-name">${item.name}</div>
-                        <div class="item-price">${item.price === 0 ? 'Бесплатно' : `💰 ${item.price} <span>монет</span>`}</div>
-                    </div>
-                    ${!owned ? `<button class="buy-button" onclick="window.buyItem('background', '${item.id}', ${item.price})">Купить</button>` : 
-                      !selected ? `<button class="buy-button" onclick="window.selectItem('background', '${item.id}')">Выбрать</button>` :
-                      '<button class="buy-button" disabled>Выбрано</button>'}
-                `;
-                
-                bgSkinsDiv.appendChild(div);
-            });
+        // Позиции для будущих компьютеров (вокруг центра)
+        const computerPositions = [
+            [0, 0],      // центр
+            [5, 0],      // справа
+            [-5, 0],     // слева
+            [0, 5],      // сверху
+            [0, -5],     // снизу
+            [5, 5]       // диагональ
+        ];
 
-            // Бонусы
-            const bonusesDiv = document.getElementById('bonuses');
-            bonusesDiv.innerHTML = '';
-            shopItems.bonuses.forEach(item => {
-                const owned = ownedItems.bonuses.includes(item.id);
-                
-                const div = document.createElement('div');
-                div.className = `shop-item ${owned ? 'owned' : ''}`;
-                
-                div.innerHTML = `
-                    <div class="item-preview">${item.emoji}</div>
-                    <div class="item-info">
-                        <div class="item-name">${item.name}</div>
-                        <div class="item-price">💰 ${item.price} монет</div>
-                        <div style="font-size: 12px; opacity: 0.7;">${item.description}</div>
-                    </div>
-                    ${!owned ? `<button class="buy-button" onclick="window.buyItem('bonus', '${item.id}', ${item.price})">Купить</button>` : 
-                      '<button class="buy-button" disabled>Куплено</button>'}
-                `;
-                
-                bonusesDiv.appendChild(div);
-            });
+        // Частицы
+        const particleCount = 500;
+        const particleGeo = new THREE.BufferGeometry();
+        const particlePositions = new Float32Array(particleCount * 3);
+        const particleColors = new Float32Array(particleCount * 3);
+        
+        for (let i = 0; i < particleCount; i++) {
+            const r = 12 + Math.random() * 12;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.random() * Math.PI - Math.PI/2;
+            
+            particlePositions[i*3] = Math.cos(theta) * Math.cos(phi) * r;
+            particlePositions[i*3+1] = Math.sin(phi) * r + 3;
+            particlePositions[i*3+2] = Math.sin(theta) * Math.cos(phi) * r;
+            
+            const color = new THREE.Color().setHSL(Math.random(), 0.8, 0.6);
+            particleColors[i*3] = color.r;
+            particleColors[i*3+1] = color.g;
+            particleColors[i*3+2] = color.b;
         }
-
-        // Покупка предмета
-        window.buyItem = function(type, id, price) {
-            if (coins >= price) {
-                coins -= price;
-                ownedItems[type + 's'].push(id);
-                
-                localStorage.setItem('doodleOwned', JSON.stringify(ownedItems));
-                updateCoinsDisplay();
-                
-                if (type === 'bonus') {
-                    activeBonuses[id] = true;
-                    localStorage.setItem('doodleBonuses', JSON.stringify(activeBonuses));
-                    showPowerup(`✅ Куплен бонус!`, 'gold');
-                }
-                
-                renderShop();
-                showPowerup(`🎉 Покупка успешна!`, 'green');
-            } else {
-                showPowerup(`❌ Не хватает монет!`, 'red');
-            }
-        };
-
-        // Выбор предмета
-        window.selectItem = function(type, id) {
-            if (type === 'ball') {
-                selectedSkin = id;
-                localStorage.setItem('doodleSelectedSkin', id);
-            } else if (type === 'background') {
-                selectedBackground = id;
-                localStorage.setItem('doodleSelectedBackground', id);
-            }
-            renderShop();
-            showPowerup(`✨ Скин выбран!`, 'cyan');
-        };
-
-        // Показать сообщение
-        function showPowerup(text, color = 'cyan') {
-            const indicator = document.createElement('div');
-            indicator.className = 'powerup-indicator';
-            indicator.textContent = text;
-            indicator.style.color = color;
-            document.body.appendChild(indicator);
-            setTimeout(() => indicator.remove(), 1000);
-        }
-
-        // Создание эффекта треска
-        function createCrackEffect(x, y) {
-            const effect = document.createElement('div');
-            effect.className = 'crack-effect';
-            effect.textContent = '💥';
-            effect.style.left = x + 'px';
-            effect.style.top = y + 'px';
-            effect.style.color = '#FF4444';
-            effect.style.position = 'fixed';
-            document.body.appendChild(effect);
-            setTimeout(() => effect.remove(), 500);
-        }
-
-        // Игровые переменные
-        let score = 0;
-        let gameRunning = true;
         
-        // Реактивный ранец
-        let hasJetpack = false;
-        let jetpackTime = 0;
-        const maxJetpackTime = activeBonuses.longJetpack ? 480 : 300;
+        particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+        particleGeo.setAttribute('color', new THREE.BufferAttribute(particleColors, 3));
         
-        // Щит
-        let hasShield = activeBonuses.shield ? 1 : 0;
-        
-        // Платформы
-        const platforms = [];
-        const platformCount = 10;
-        const platformWidth = 70;
-        const platformHeight = 15;
-        
-        // Игрок
-        const player = {
-            x: canvas.width / 2 - 15,
-            y: canvas.height - 100,
-            width: 30,
-            height: 30,
-            velocityY: 0,
-            velocityX: 0,
-            speed: activeBonuses.slowMotion ? 4 : 5,
-            jumpPower: -10,
-            jetpackPower: activeBonuses.slowMotion ? -5 : -6,
-            color: '#FFE66D',
-            jumpsLeft: activeBonuses.tripleJump ? 3 : 1,
-            airJumps: 0
-        };
-
-        // Управление - ИСПРАВЛЕНО!
-        const keys = {
-            'w': false, 'a': false, 's': false, 'd': false,
-            'arrowup': false, 'arrowdown': false, 'arrowleft': false, 'arrowright': false,
-            ' ': false
-        };
-        
-        document.addEventListener('keydown', (e) => {
-            const key = e.key.toLowerCase();
-            
-            // WASD
-            if (key === 'w') keys['w'] = true;
-            if (key === 'a') keys['a'] = true;
-            if (key === 's') keys['s'] = true;
-            if (key === 'd') keys['d'] = true;
-            
-            // Стрелки
-            if (key === 'arrowup') keys['arrowup'] = true;
-            if (key === 'arrowdown') keys['arrowdown'] = true;
-            if (key === 'arrowleft') keys['arrowleft'] = true;
-            if (key === 'arrowright') keys['arrowright'] = true;
-            
-            // Пробел
-            if (key === ' ') keys[' '] = true;
-            
-            // Рестарт
-            if (key === 'r') {
-                restartGame();
-            }
-            
-            // Предотвращаем скролл для всех клавиш управления
-            if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(key)) {
-                e.preventDefault();
-            }
+        const particleMat = new THREE.PointsMaterial({ 
+            size: 0.15,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.6,
+            blending: THREE.AdditiveBlending
         });
         
-        document.addEventListener('keyup', (e) => {
-            const key = e.key.toLowerCase();
-            
-            // WASD
-            if (key === 'w') keys['w'] = false;
-            if (key === 'a') keys['a'] = false;
-            if (key === 's') keys['s'] = false;
-            if (key === 'd') keys['d'] = false;
-            
-            // Стрелки
-            if (key === 'arrowup') keys['arrowup'] = false;
-            if (key === 'arrowdown') keys['arrowdown'] = false;
-            if (key === 'arrowleft') keys['arrowleft'] = false;
-            if (key === 'arrowright') keys['arrowright'] = false;
-            
-            // Пробел
-            if (key === ' ') keys[' '] = false;
-        });
+        const particles = new THREE.Points(particleGeo, particleMat);
+        scene.add(particles);
 
-        // Инициализация платформ
-        function initPlatforms() {
-            platforms.length = 0;
+        // ============ ИГРОВАЯ ЛОГИКА ============
+        
+        function updateUI() {
+            document.getElementById('balance').textContent = Math.floor(balance);
             
-            // Стартовая платформа
-            platforms.push({
-                x: canvas.width / 2 - platformWidth / 2,
-                y: canvas.height - 50,
-                width: platformWidth,
-                height: platformHeight,
-                type: 'normal',
-                color: '#4ECDC4',
-                jumpsLeft: Infinity
-            });
+            const displayIncome = boostActive ? totalIncome * 2 : totalIncome;
+            document.getElementById('income').textContent = displayIncome.toFixed(1);
+            document.getElementById('mining-power').textContent = `Мощность фермы: ${totalPower} GH/s ${boostActive ? '(x2)' : ''}`;
             
-            // Генерация остальных платформ
-            for (let i = 1; i < platformCount; i++) {
-                createPlatform(i * (canvas.height / platformCount));
-            }
-        }
-
-        function createPlatform(y) {
-            let type = 'normal';
-            let color = '#4ECDC4';
-            let jumpsLeft = Infinity;
-            let special = null;
+            document.getElementById('computers-count').textContent = computers.length;
+            document.getElementById('total-parts').textContent = computers.reduce((sum, comp) => 
+                sum + comp.components.filter(c => c).length, 0);
             
-            const rand = Math.random();
+            // Обновление списка компьютеров
+            let computersHTML = computers.map((comp, index) => `
+                <div class="computer-slot ${index === currentComputer ? 'active' : ''}" 
+                     onclick="switchComputer(${index})">
+                    <div>${comp.name}</div>
+                    <div class="power">⚡ ${comp.totalPower} GH/s</div>
+                    <div style="font-size: 10px; color: #888;">${comp.components.filter(c => c).length} компонентов</div>
+                </div>
+            `).join('');
             
-            if (rand < 0.15) {
-                type = 'moving';
-                color = '#FF6B6B';
-            } else if (rand < 0.3) {
-                type = 'crack';
-                color = '#8B4513';
-                jumpsLeft = 2;
-                special = 'crack';
-            } else if (rand < 0.4) {
-                type = 'jetpack';
-                color = '#FFA500';
-                special = 'jetpack';
-            } else if (rand < 0.45) {
-                type = 'bouncy';
-                color = '#FFE66D';
-                special = 'bouncy';
-            } else if (rand < 0.5 && activeBonuses.doubleCoins) {
-                type = 'coin';
-                color = '#FFD700';
-                special = 'coin';
+            // Добавляем пустые слоты
+            const emptySlots = 6 - computers.length;
+            for (let i = 0; i < emptySlots; i++) {
+                computersHTML += `
+                    <div class="computer-slot empty">
+                        <div>🔒 Пустой слот</div>
+                        <div style="font-size: 10px; color: #888;">Купите новый ПК</div>
+                    </div>
+                `;
             }
             
-            const platform = {
-                x: Math.random() * (canvas.width - platformWidth),
-                y: y,
-                width: platformWidth,
-                height: platformHeight,
-                type: type,
-                color: color,
-                special: special,
-                jumpsLeft: jumpsLeft,
-                direction: type === 'moving' ? (Math.random() < 0.5 ? 1 : -1) : 0,
-                crackLevel: 0
-            };
+            document.getElementById('computers-list').innerHTML = computersHTML;
             
-            platforms.push(platform);
-        }
-
-        // Обновление игры
-        function update() {
-            if (!gameRunning) return;
-            
-            // Управление - ИСПРАВЛЕНО! WASD и стрелки работают одновременно
-            let moveX = 0;
-            
-            // WASD
-            if (keys['a'] || keys['arrowleft']) moveX -= 1;
-            if (keys['d'] || keys['arrowright']) moveX += 1;
-            
-            player.velocityX = moveX * player.speed;
-            
-            // Реактивный ранец (пробел)
-            const jetpackActive = hasJetpack && jetpackTime > 0 && keys[' '];
-            
-            if (jetpackActive) {
-                player.velocityY = player.jetpackPower;
-                jetpackTime--;
-                createJetpackParticles();
-                jetpackProgress.style.width = `${(jetpackTime / maxJetpackTime) * 100}%`;
-                
-                if (jetpackTime <= 0) {
-                    hasJetpack = false;
-                }
+            // Кнопка нового компьютера
+            const newBtn = document.getElementById('new-computer-btn');
+            if (computers.length >= 6) {
+                newBtn.disabled = true;
+                newBtn.textContent = '➕ Максимум ПК (6/6)';
             } else {
-                // Гравитация
-                player.velocityY += 0.5;
-                
-                // Тройной прыжок
-                if (activeBonuses.tripleJump && keys[' '] && player.airJumps < player.jumpsLeft && player.velocityY > 0) {
-                    player.velocityY = player.jumpPower;
-                    player.airJumps++;
-                    showPowerup(`🦘 Прыжок ${player.airJumps + 1}/3`, 'yellow');
-                }
+                newBtn.disabled = balance < 2000;
+                newBtn.textContent = `➕ Купить новый ПК (2000💰) ${computers.length}/6`;
             }
             
-            player.y += player.velocityY;
-            player.x += player.velocityX;
+            // Обновление магазина
+            const filtered = currentCategory === 'all' 
+                ? componentsData 
+                : componentsData.filter(c => c.category === currentCategory);
             
-            // Границы
-            if (player.x < 0) player.x = 0;
-            if (player.x > canvas.width - player.width) player.x = canvas.width - player.width;
-            
-            // Проверка столкновений с платформами
-            for (let i = platforms.length - 1; i >= 0; i--) {
-                const platform = platforms[i];
+            const currentComp = computers[currentComputer];
+            const shopHTML = filtered.map((comp) => {
+                const index = componentsData.findIndex(c => c.id === comp.id);
+                const owned = currentComp.components[index];
+                const canBuy = balance >= comp.price && !owned;
                 
-                if (player.velocityY > 0 && 
-                    player.y + player.height > platform.y &&
-                    player.y + player.height < platform.y + platform.height + 15 &&
-                    player.x + player.width > platform.x &&
-                    player.x < platform.x + platform.width) {
-                    
-                    player.airJumps = 0;
-                    
-                    let jumpPower = player.jumpPower;
-                    
-                    if (platform.special === 'jetpack') {
-                        hasJetpack = true;
-                        jetpackTime = maxJetpackTime;
-                        jetpackProgress.style.width = '100%';
-                        showPowerup('🚀 РЕАКТИВНЫЙ РАНЕЦ!', 'orange');
-                        platforms.splice(i, 1);
-                        continue;
-                    }
-                    else if (platform.special === 'bouncy') {
-                        jumpPower = player.jumpPower * 1.5;
-                        showPowerup('✨ СУПЕР ПРЫЖОК!', 'yellow');
-                    }
-                    else if (platform.special === 'coin') {
-                        coins += activeBonuses.doubleCoins ? 20 : 10;
-                        updateCoinsDisplay();
-                        showPowerup('🪙 +' + (activeBonuses.doubleCoins ? '20' : '10'), 'gold');
-                        platforms.splice(i, 1);
-                        continue;
-                    }
-                    else if (platform.special === 'crack') {
-                        platform.crackLevel++;
-                        
-                        createCrackEffect(
-                            canvas.getBoundingClientRect().left + platform.x + platform.width/2,
-                            canvas.getBoundingClientRect().top + platform.y
-                        );
-                        
-                        if (platform.crackLevel >= 2) {
-                            showPowerup('💥 БЛОК РАЗРУШЕН!', '#ff4444');
-                            platforms.splice(i, 1);
-                            continue;
-                        } else {
-                            showPowerup('💢 ТРЕЩИНА!', '#ff8888');
-                            platform.color = '#A0522D';
+                return `
+                    <div class="shop-item ${owned ? 'owned' : ''}" onclick="buyComponent('${comp.id}')" style="${!canBuy && !owned ? 'opacity:0.5;' : ''}">
+                        <div class="item-icon">${comp.icon}</div>
+                        <div class="item-info">
+                            <div class="item-name">${comp.name}</div>
+                            <div class="item-price">💰 ${comp.price} монет</div>
+                            <div class="item-income">⛏ +${comp.income}/сек</div>
+                            <div class="item-specs">${comp.specs}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('shop-items').innerHTML = shopHTML;
+        }
+
+        window.buyComponent = (id) => {
+            const index = componentsData.findIndex(c => c.id === id);
+            if (index === -1) return;
+            
+            const comp = componentsData[index];
+            const currentComp = computers[currentComputer];
+            
+            if (!currentComp.components[index] && balance >= comp.price) {
+                balance -= comp.price;
+                currentComp.components[index] = true;
+                currentComp.totalIncome += comp.income;
+                currentComp.totalPower += comp.power;
+                
+                // Обновляем общую статистику
+                totalIncome = computers.reduce((sum, c) => sum + c.totalIncome, 0);
+                totalPower = computers.reduce((sum, c) => sum + c.totalPower, 0);
+                
+                // Визуальный эффект
+                if (computerModels[currentComputer]) {
+                    computerModels[currentComputer].children.forEach(child => {
+                        if (child.material && child.material.emissive) {
+                            child.material.emissive.setHex(0x224400);
+                            setTimeout(() => {
+                                child.material.emissive.setHex(0x000000);
+                            }, 500);
                         }
-                    }
-                    
-                    player.velocityY = jumpPower;
-                    player.y = platform.y - player.height;
-                    
-                    score += 10;
-                    coins += activeBonuses.doubleCoins ? 2 : 1;
-                    
-                    scoreElement.textContent = `🎯 Счет: ${score}`;
-                    updateCoinsDisplay();
-                    
-                    if (score > highScore) {
-                        highScore = score;
-                        localStorage.setItem('doodleHighScore', highScore);
-                        highScoreElement.textContent = `🏆 Рекорд: ${highScore}`;
-                    }
-                }
-            }
-            
-            // Движение платформ
-            for (let platform of platforms) {
-                if (platform.type === 'moving') {
-                    platform.x += platform.direction * 2;
-                    
-                    if (platform.x <= 0 || platform.x >= canvas.width - platform.width) {
-                        platform.direction *= -1;
-                    }
-                }
-            }
-            
-            // Камера
-            if (player.y < canvas.height / 3) {
-                const diff = canvas.height / 3 - player.y;
-                player.y += diff;
-                
-                for (let platform of platforms) {
-                    platform.y += diff;
+                    });
                 }
                 
-                for (let i = platforms.length - 1; i >= 0; i--) {
-                    if (platforms[i].y > canvas.height) {
-                        platforms.splice(i, 1);
-                        createPlatform(-platformHeight);
-                    }
-                }
+                showNotification(`Куплено: ${comp.name} в ${currentComp.name}!`);
+                updateUI();
             }
-            
-            // Проверка проигрыша
-            if (player.y > canvas.height) {
-                if (hasShield > 0) {
-                    hasShield--;
-                    player.y = canvas.height - 200;
-                    player.velocityY = player.jumpPower;
-                    showPowerup('🛡️ ЩИТ АКТИВИРОВАН!', 'cyan');
-                } else {
-                    gameOver();
-                }
-            }
-        }
+        };
 
-        // Частицы для ранца
-        const particles = [];
-        
-        function createJetpackParticles() {
-            for (let i = 0; i < 5; i++) {
-                particles.push({
-                    x: player.x + player.width / 2,
-                    y: player.y + player.height,
-                    vx: (Math.random() - 0.5) * 3,
-                    vy: Math.random() * 5 + 3,
-                    life: 30,
-                    color: `hsl(${Math.random() * 60 + 20}, 100%, 60%)`
+        window.switchComputer = (index) => {
+            if (index >= 0 && index < computers.length) {
+                currentComputer = index;
+                updateUI();
+                
+                // Подсветить выбранный компьютер
+                computerModels.forEach((model, i) => {
+                    model.children.forEach(child => {
+                        if (child.material && child.material.emissive) {
+                            child.material.emissive.setHex(i === index ? 0x224400 : 0x000000);
+                        }
+                    });
                 });
             }
-        }
+        };
 
-        // Рисование игрока с разными скинами
-        function drawPlayer() {
-            const skin = shopItems.balls.find(s => s.id === selectedSkin) || shopItems.balls[0];
+        // Новый компьютер
+        document.getElementById('new-computer-btn').addEventListener('click', () => {
+            if (balance >= 2000 && computers.length < 6) {
+                balance -= 2000;
+                
+                const newId = computers.length;
+                
+                // Создаем новый 3D корпус на свободной позиции
+                const pos = computerPositions[computers.length];
+                const newComputer = createComputerCase(pos[0], pos[1], newId);
+                scene.add(newComputer);
+                computerModels.push(newComputer);
+                
+                // Добавляем в массив данных
+                computers.push({
+                    id: newId,
+                    name: `ПК #${newId + 1}`,
+                    components: new Array(componentsData.length).fill(false),
+                    totalIncome: 0,
+                    totalPower: 0
+                });
+                
+                showNotification(`Новый компьютер #${newId + 1} построен!`);
+                updateUI();
+            }
+        });
+
+        // Скрытие/показ магазина
+        document.getElementById('toggle-shop').addEventListener('click', () => {
+            const shop = document.getElementById('shop-panel');
+            const toggle = document.getElementById('toggle-shop');
             
-            ctx.shadowBlur = 20;
-            ctx.shadowColor = skin.color === 'rainbow' ? 'white' : skin.color;
+            shopHidden = !shopHidden;
             
-            // Базовая форма
-            ctx.beginPath();
-            ctx.ellipse(player.x + player.width/2, player.y + player.height/2, 
-                       player.width/2, player.height/2, 0, 0, Math.PI * 2);
-            
-            // Заливка в зависимости от скина
-            if (skin.pattern === 'rainbow') {
-                // Радужный градиент
-                const gradient = ctx.createLinearGradient(player.x, player.y, player.x + player.width, player.y + player.height);
-                gradient.addColorStop(0, 'red');
-                gradient.addColorStop(0.2, 'orange');
-                gradient.addColorStop(0.4, 'yellow');
-                gradient.addColorStop(0.6, 'green');
-                gradient.addColorStop(0.8, 'blue');
-                gradient.addColorStop(1, 'purple');
-                ctx.fillStyle = gradient;
-                ctx.fill();
+            if (shopHidden) {
+                shop.classList.add('hidden');
+                toggle.classList.add('hidden');
+                toggle.textContent = '▶ Показать магазин';
             } else {
-                ctx.fillStyle = skin.color;
-                ctx.fill();
+                shop.classList.remove('hidden');
+                toggle.classList.remove('hidden');
+                toggle.textContent = '◀ Скрыть магазин';
             }
-            
-            // Рисуем узоры для разных скинов
-            ctx.shadowBlur = 0;
-            ctx.fillStyle = 'rgba(0,0,0,0.3)';
-            
-            switch(skin.pattern) {
-                case 'panda':
-                    // Черные пятна панды
-                    ctx.beginPath();
-                    ctx.arc(player.x + player.width/2 - 8, player.y + player.height/2 - 5, 5, 0, Math.PI * 2);
-                    ctx.arc(player.x + player.width/2 + 8, player.y + player.height/2 - 5, 5, 0, Math.PI * 2);
-                    ctx.fill();
-                    break;
-                    
-                case 'cow':
-                    // Пятна коровы
-                    for (let i = 0; i < 5; i++) {
-                        ctx.beginPath();
-                        ctx.arc(player.x + 5 + i * 5, player.y + 10, 3, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
-                    break;
-                    
-                case 'penguin':
-                    // Белый животик пингвина
-                    ctx.fillStyle = 'white';
-                    ctx.beginPath();
-                    ctx.ellipse(player.x + player.width/2, player.y + player.height/2 + 2, 8, 10, 0, 0, Math.PI * 2);
-                    ctx.fill();
-                    break;
-                    
-                case 'bee':
-                    // Полоски пчелы
-                    ctx.fillStyle = 'black';
-                    for (let i = 0; i < 3; i++) {
-                        ctx.fillRect(player.x + 5, player.y + 5 + i * 7, player.width - 10, 3);
-                    }
-                    break;
-                    
-                case 'ladybug':
-                    // Точки божьей коровки
-                    ctx.fillStyle = 'black';
-                    ctx.beginPath();
-                    ctx.arc(player.x + 10, player.y + 12, 3, 0, Math.PI * 2);
-                    ctx.arc(player.x + 20, player.y + 18, 3, 0, Math.PI * 2);
-                    ctx.arc(player.x + 15, player.y + 22, 3, 0, Math.PI * 2);
-                    ctx.fill();
-                    break;
-                    
-                case 'octopus':
-                    // Щупальца осьминога
-                    ctx.strokeStyle = skin.color;
-                    ctx.lineWidth = 3;
-                    for (let i = 0; i < 4; i++) {
-                        ctx.beginPath();
-                        ctx.moveTo(player.x + 5 + i * 7, player.y + player.height - 5);
-                        ctx.lineTo(player.x + i * 7, player.y + player.height + 5);
-                        ctx.stroke();
-                    }
-                    break;
-                    
-                case 'dragon':
-                    // Крылья дракона
-                    ctx.fillStyle = '#FFA500';
-                    ctx.beginPath();
-                    ctx.moveTo(player.x, player.y + 10);
-                    ctx.lineTo(player.x - 8, player.y);
-                    ctx.lineTo(player.x, player.y - 5);
-                    ctx.fill();
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(player.x + player.width, player.y + 10);
-                    ctx.lineTo(player.x + player.width + 8, player.y);
-                    ctx.lineTo(player.x + player.width, player.y - 5);
-                    ctx.fill();
-                    break;
-                    
-                case 'unicorn':
-                    // Рог единорога
-                    ctx.fillStyle = 'gold';
-                    ctx.beginPath();
-                    ctx.moveTo(player.x + player.width/2, player.y - 5);
-                    ctx.lineTo(player.x + player.width/2 - 3, player.y - 12);
-                    ctx.lineTo(player.x + player.width/2 + 3, player.y - 12);
-                    ctx.fill();
-                    break;
-            }
-            
-            // Глаза (общие для всех)
-            ctx.fillStyle = '#FFFFFF';
-            ctx.beginPath();
-            ctx.arc(player.x + player.width/2 - 5, player.y + player.height/2 - 5, 5, 0, Math.PI * 2);
-            ctx.arc(player.x + player.width/2 + 5, player.y + player.height/2 - 5, 5, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Зрачки
-            ctx.fillStyle = '#000000';
-            ctx.beginPath();
-            ctx.arc(player.x + player.width/2 - 5 + (player.velocityX * 0.3), player.y + player.height/2 - 6, 2, 0, Math.PI * 2);
-            ctx.arc(player.x + player.width/2 + 5 + (player.velocityX * 0.3), player.y + player.height/2 - 6, 2, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Ранец
-            if (hasJetpack) {
-                ctx.fillStyle = '#FFA500';
-                ctx.shadowColor = 'orange';
-                ctx.fillRect(player.x - 5, player.y + 5, 8, 20);
-                ctx.fillRect(player.x + player.width - 3, player.y + 5, 8, 20);
-                
-                if (keys[' '] && jetpackTime > 0) {
-                    const gradient = ctx.createLinearGradient(player.x + player.width/2, player.y + player.height,
-                                                            player.x + player.width/2, player.y + player.height + 30);
-                    gradient.addColorStop(0, 'yellow');
-                    gradient.addColorStop(0.5, 'orange');
-                    gradient.addColorStop(1, 'red');
-                    
-                    ctx.fillStyle = gradient;
-                    ctx.beginPath();
-                    ctx.moveTo(player.x + player.width/2 - 8, player.y + player.height);
-                    ctx.lineTo(player.x + player.width/2, player.y + player.height + 25);
-                    ctx.lineTo(player.x + player.width/2 + 8, player.y + player.height);
-                    ctx.fill();
-                }
-            }
-            
-            // Щит
-            if (hasShield > 0) {
-                ctx.strokeStyle = 'cyan';
-                ctx.lineWidth = 3;
-                ctx.setLineDash([10, 5]);
-                ctx.beginPath();
-                ctx.ellipse(player.x + player.width/2, player.y + player.height/2, 
-                           player.width, player.height, 0, 0, Math.PI * 2);
-                ctx.stroke();
-                ctx.setLineDash([]);
-            }
-            
-            // Магнит
-            if (activeBonuses.magnet) {
-                ctx.strokeStyle = 'gold';
-                ctx.lineWidth = 2;
-                ctx.setLineDash([5, 5]);
-                ctx.beginPath();
-                ctx.ellipse(player.x + player.width/2, player.y + player.height/2, 
-                           player.width + 5, player.height + 5, 0, 0, Math.PI * 2);
-                ctx.stroke();
-                ctx.setLineDash([]);
-            }
+        });
+
+        window.filterCategory = (category) => {
+            currentCategory = category;
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            updateUI();
+        };
+
+        function showNotification(text) {
+            const notif = document.getElementById('notification');
+            notif.textContent = text;
+            notif.style.display = 'block';
+            setTimeout(() => {
+                notif.style.display = 'none';
+            }, 2000);
         }
 
-        // Отрисовка фона
-        function drawBackground() {
-            switch(selectedBackground) {
-                case 'sunset':
-                    const gradient1 = ctx.createLinearGradient(0, 0, 0, canvas.height);
-                    gradient1.addColorStop(0, '#ff7e5f');
-                    gradient1.addColorStop(0.5, '#feb47b');
-                    gradient1.addColorStop(1, '#ff6b6b');
-                    ctx.fillStyle = gradient1;
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    break;
-                    
-                case 'forest':
-                    ctx.fillStyle = '#1a4d2e';
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    for (let i = 0; i < 5; i++) {
-                        ctx.fillStyle = '#2d6a4f';
-                        ctx.beginPath();
-                        ctx.moveTo(i * 100, canvas.height);
-                        ctx.lineTo(i * 100 + 30, canvas.height - 100);
-                        ctx.lineTo(i * 100 - 30, canvas.height - 100);
-                        ctx.fill();
-                    }
-                    break;
-                    
-                case 'ocean':
-                    const gradient2 = ctx.createLinearGradient(0, 0, 0, canvas.height);
-                    gradient2.addColorStop(0, '#00b4d8');
-                    gradient2.addColorStop(0.5, '#0077b6');
-                    gradient2.addColorStop(1, '#023e8a');
-                    ctx.fillStyle = gradient2;
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    
-                    for (let i = 0; i < 10; i++) {
-                        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-                        ctx.beginPath();
-                        ctx.arc(50 + i * 40, 400 + Math.sin(Date.now() * 0.001 + i) * 20, 20, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
-                    break;
-                    
-                case 'cyber':
-                    ctx.fillStyle = '#0d0d0d';
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    ctx.strokeStyle = '#00ff00';
-                    ctx.lineWidth = 1;
-                    for (let i = 0; i < canvas.width; i += 30) {
-                        ctx.beginPath();
-                        ctx.moveTo(i, 0);
-                        ctx.lineTo(i + 20, canvas.height);
-                        ctx.strokeStyle = `rgba(0, 255, 0, 0.1)`;
-                        ctx.stroke();
-                    }
-                    break;
-                    
-                case 'magic':
-                    for (let i = 0; i < 10; i++) {
-                        ctx.fillStyle = `hsla(${Date.now() / 20 + i * 36}, 70%, 50%, 0.1)`;
-                        ctx.beginPath();
-                        ctx.arc(200 + Math.sin(Date.now() * 0.001 + i) * 100, 
-                               300 + Math.cos(Date.now() * 0.001 + i) * 100, 100, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
-                    break;
-                    
-                default: // cosmic
-                    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    
-                    for (let i = 0; i < 20; i++) {
-                        ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.5})`;
-                        ctx.beginPath();
-                        ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * 2, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
-                    break;
-            }
+        function createFloatingParticle(text, x, y) {
+            const particle = document.createElement('div');
+            particle.className = 'floating-particle';
+            particle.textContent = text;
+            particle.style.left = x + 'px';
+            particle.style.top = y + 'px';
+            document.body.appendChild(particle);
+            setTimeout(() => particle.remove(), 1500);
         }
 
-        // Отрисовка
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Буст
+        function updateBoostUI() {
+            const boostBtn = document.getElementById('boost-button');
+            const cooldownBar = document.getElementById('boost-cooldown');
+            const boostTimer = document.getElementById('boost-timer');
             
-            // Фон
-            drawBackground();
+            const now = Math.floor(Date.now() / 1000);
             
-            // Частицы
-            for (let i = particles.length - 1; i >= 0; i--) {
-                const p = particles[i];
-                ctx.globalAlpha = p.life / 30;
-                ctx.fillStyle = p.color;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
-                ctx.fill();
-                
-                p.x += p.vx;
-                p.y += p.vy;
-                p.life--;
-                
-                if (p.life <= 0) {
-                    particles.splice(i, 1);
-                }
-            }
-            ctx.globalAlpha = 1;
-            
-            // Платформы
-            for (let platform of platforms) {
-                ctx.shadowColor = 'rgba(0,0,0,0.5)';
-                ctx.shadowBlur = 10;
-                ctx.shadowOffsetY = 5;
-                
-                if (platform.special === 'crack' && platform.crackLevel === 1) {
-                    ctx.fillStyle = platform.color;
-                    ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
-                    
-                    ctx.fillStyle = '#000000';
-                    ctx.beginPath();
-                    ctx.moveTo(platform.x + 10, platform.y + 5);
-                    ctx.lineTo(platform.x + 30, platform.y + 10);
-                    ctx.lineTo(platform.x + 20, platform.y + 12);
-                    ctx.fill();
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(platform.x + 50, platform.y + 8);
-                    ctx.lineTo(platform.x + 60, platform.y + 12);
-                    ctx.lineTo(platform.x + 55, platform.y + 14);
-                    ctx.fill();
+            if (boostActive) {
+                const timeLeft = boostEndTime - now;
+                if (timeLeft > 0) {
+                    boostTimer.textContent = `${timeLeft}с`;
+                    boostTimer.style.display = 'block';
                 } else {
-                    const gradient = ctx.createLinearGradient(platform.x, platform.y, platform.x, platform.y + platform.height);
-                    gradient.addColorStop(0, platform.color);
-                    gradient.addColorStop(1, platform.color);
-                    ctx.fillStyle = gradient;
-                    ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
-                }
-                
-                // Блик
-                ctx.shadowBlur = 0;
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-                ctx.fillRect(platform.x, platform.y, platform.width, 3);
-                
-                // Индикаторы
-                if (platform.special === 'jetpack') {
-                    ctx.font = '20px Arial';
-                    ctx.fillStyle = 'white';
-                    ctx.shadowBlur = 10;
-                    ctx.shadowColor = 'orange';
-                    ctx.fillText('🚀', platform.x + platform.width/2 - 10, platform.y - 10);
-                }
-                
-                if (platform.special === 'coin') {
-                    ctx.font = '20px Arial';
-                    ctx.fillStyle = 'gold';
-                    ctx.shadowColor = 'gold';
-                    ctx.fillText('🪙', platform.x + platform.width/2 - 10, platform.y - 10);
+                    boostActive = false;
+                    boostTimer.style.display = 'none';
+                    boostBtn.classList.remove('boost-active');
                 }
             }
             
-            // Игрок
-            drawPlayer();
-            
-            ctx.shadowBlur = 0;
+            if (boostCooldown) {
+                const cooldownLeft = boostCooldownEnd - now;
+                if (cooldownLeft > 0) {
+                    const percent = (cooldownLeft / BOOST_COOLDOWN) * 100;
+                    cooldownBar.style.width = percent + '%';
+                    boostBtn.disabled = true;
+                } else {
+                    boostCooldown = false;
+                    cooldownBar.style.width = '0%';
+                    boostBtn.disabled = false;
+                }
+            }
         }
 
-        function gameOver() {
-            gameRunning = false;
-            finalScoreElement.textContent = score;
-            finalCoinsElement.textContent = coins;
-            finalHighScoreElement.textContent = highScore;
+        document.getElementById('boost-button').addEventListener('click', () => {
+            const now = Math.floor(Date.now() / 1000);
             
-            newRecordElement.style.display = score >= highScore ? 'block' : 'none';
-            gameOverElement.style.display = 'block';
+            if (!boostActive && !boostCooldown) {
+                boostActive = true;
+                boostEndTime = now + BOOST_DURATION;
+                boostCooldown = true;
+                boostCooldownEnd = now + BOOST_COOLDOWN;
+                
+                const boostBtn = document.getElementById('boost-button');
+                boostBtn.classList.add('boost-active');
+                
+                showNotification('⚡ БУСТ АКТИВИРОВАН! x2 ДОХОД НА 10 СЕКУНД!');
+                
+                computerModels.forEach(model => {
+                    model.children.forEach(child => {
+                        if (child.material && child.material.emissive) {
+                            child.material.emissive.setHex(0xaa5500);
+                        }
+                    });
+                });
+                
+                setTimeout(() => {
+                    computerModels.forEach(model => {
+                        model.children.forEach(child => {
+                            if (child.material && child.material.emissive) {
+                                child.material.emissive.setHex(0x000000);
+                            }
+                        });
+                    });
+                }, BOOST_DURATION * 1000);
+            }
+        });
+
+        setInterval(updateBoostUI, 100);
+
+        // Майнинг
+        document.getElementById('mining-button').addEventListener('click', (e) => {
+            const baseReward = 100;
+            const powerBonus = Math.floor(totalPower / 5);
+            const boostMultiplier = boostActive ? 2 : 1;
+            const reward = (baseReward + powerBonus) * boostMultiplier;
+            
+            balance += reward;
+            miningProgress = 0;
+            document.getElementById('progress-bar').style.width = '0%';
+            document.getElementById('progress-text').textContent = '0%';
+            
+            showNotification(`+${reward} монет! ${boostActive ? '(x2 BOOST)' : ''}`);
+            
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => {
+                    createFloatingParticle(`+${Math.floor(reward/5)}`, 
+                        e.clientX + (Math.random() - 0.5) * 150, 
+                        e.clientY + (Math.random() - 0.5) * 100);
+                }, i * 80);
+            }
+            
+            computerModels.forEach(model => {
+                model.children.forEach(child => {
+                    if (child.material && child.material.emissive) {
+                        child.material.emissive.setHex(boostActive ? 0xaa5500 : 0x224400);
+                        setTimeout(() => {
+                            if (!boostActive) {
+                                child.material.emissive.setHex(0x000000);
+                            }
+                        }, 200);
+                    }
+                });
+            });
+            
+            updateUI();
+        });
+
+        // Прогресс
+        setInterval(() => {
+            if (miningProgress < 100) {
+                const speed = 1 + totalPower / 30;
+                miningProgress += speed;
+                const progress = Math.min(miningProgress, 100);
+                document.getElementById('progress-bar').style.width = progress + '%';
+                document.getElementById('progress-text').textContent = Math.floor(progress) + '%';
+            }
+        }, 100);
+
+        // Автоматический доход
+        setInterval(() => {
+            const multiplier = boostActive ? 2 : 1;
+            balance += totalIncome * multiplier;
+            updateUI();
+        }, 1000);
+
+        // Анимация
+        function animate() {
+            requestAnimationFrame(animate);
+
+            particles.rotation.y += 0.001;
+            
+            computerModels.forEach((model, i) => {
+                const comp = computers[i];
+                if (comp && comp.components.filter(c => c).length > 0) {
+                    const time = Date.now() * 0.001;
+                    model.children.forEach(child => {
+                        if (child.material && child.material.emissive && child.material.emissive.getHex() !== 0xaa5500) {
+                            const intensity = 0.1 + Math.sin(time * 2 + i) * 0.1;
+                            child.material.emissive.setHSL(0.3, 1, intensity);
+                        }
+                    });
+                }
+            });
+
+            controls.update();
+            renderer.render(scene, camera);
         }
 
-        function restartGame() {
-            gameRunning = true;
-            score = 0;
-            hasJetpack = false;
-            jetpackTime = 0;
-            jetpackProgress.style.width = '0%';
-            
-            scoreElement.textContent = `🎯 Счет: 0`;
-            player.y = canvas.height - 100;
-            player.velocityY = 0;
-            player.x = canvas.width / 2 - 15;
-            gameOverElement.style.display = 'none';
-            particles.length = 0;
-            
-            initPlatforms();
-        }
+        animate();
 
-        // Запуск
-        highScoreElement.textContent = `🏆 Рекорд: ${highScore}`;
-        updateCoinsDisplay();
-        renderShop();
-        initPlatforms();
-        gameLoop();
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
 
-        function gameLoop() {
-            update();
-            draw();
-            requestAnimationFrame(gameLoop);
-        }
-
-        restartBtn.addEventListener('click', restartGame);
+        // Инициализация
+        updateUI();
     </script>
 </body>
 </html>
