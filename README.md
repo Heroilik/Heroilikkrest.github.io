@@ -71,6 +71,9 @@
             color: white;
             font-size: 14px;
             pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
         .key {
@@ -81,71 +84,89 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
+        #music-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #ffaa00;
+            color: #ffaa00;
+            padding: 8px 15px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            margin-left: 10px;
+        }
+
+        #music-toggle:hover {
+            background: #ffaa00;
+            color: black;
+        }
+
         #shop-panel {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 400px;
-            background: rgba(20, 30, 45, 0.98);
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 1200px;
+            background: rgba(20, 30, 45, 0.95);
             backdrop-filter: blur(10px);
             border: 2px solid #ffaa00;
             border-radius: 25px;
-            padding: 20px;
+            padding: 15px;
             color: white;
             box-shadow: 0 0 40px rgba(255, 170, 0, 0.3);
-            max-height: calc(100vh - 100px);
-            overflow-y: auto;
+            max-height: 300px;
             z-index: 1000;
             pointer-events: auto;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, bottom 0.3s ease;
         }
 
         #shop-panel.hidden {
-            transform: translateX(420px);
+            bottom: -320px;
         }
 
         #toggle-shop {
             position: absolute;
-            top: 20px;
-            right: 420px;
+            bottom: 320px;
+            left: 50%;
+            transform: translateX(-50%);
             background: #ffaa00;
             color: black;
             border: none;
-            border-radius: 50px 0 0 50px;
-            padding: 15px 20px;
-            font-size: 20px;
+            border-radius: 20px 20px 0 0;
+            padding: 10px 30px;
+            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
             z-index: 1001;
-            transition: right 0.3s ease;
-            box-shadow: -5px 0 15px rgba(255, 170, 0, 0.3);
+            transition: bottom 0.3s ease;
+            box-shadow: 0 -5px 15px rgba(255, 170, 0, 0.3);
         }
 
         #toggle-shop.hidden {
-            right: 20px;
-            border-radius: 50px;
+            bottom: 20px;
         }
 
         #shop-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
             border-bottom: 2px solid rgba(255, 170, 0, 0.3);
         }
 
         #shop-header h2 {
             color: #ffaa00;
-            font-size: 24px;
+            font-size: 20px;
             text-transform: uppercase;
             letter-spacing: 2px;
         }
 
         #shop-categories {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 8px;
+            margin-bottom: 10px;
             flex-wrap: wrap;
         }
 
@@ -153,10 +174,10 @@
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 170, 0, 0.3);
             color: white;
-            padding: 8px 15px;
+            padding: 6px 12px;
             border-radius: 20px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             transition: all 0.3s;
         }
 
@@ -171,22 +192,44 @@
             border-color: #ffaa00;
         }
 
+        #shop-items {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 5px 0 15px 0;
+            scroll-behavior: smooth;
+        }
+
+        #shop-items::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        #shop-items::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        #shop-items::-webkit-scrollbar-thumb {
+            background: #ffaa00;
+            border-radius: 3px;
+        }
+
         .shop-item {
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 15px;
+            border-radius: 12px;
+            padding: 12px;
             cursor: pointer;
             transition: all 0.3s;
-            border-left: 5px solid #ffaa00;
-            position: relative;
+            border-left: 4px solid #ffaa00;
+            min-width: 200px;
+            flex: 0 0 auto;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
         }
 
         .shop-item:hover {
-            transform: translateX(-5px);
+            transform: translateY(-5px);
             background: rgba(255, 170, 0, 0.15);
             box-shadow: 0 5px 20px rgba(255, 170, 0, 0.3);
         }
@@ -199,22 +242,22 @@
         .shop-item.owned::after {
             content: "✓";
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 5px;
+            right: 5px;
             color: #00ffaa;
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
         }
 
         .item-icon {
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 30px;
+            font-size: 24px;
         }
 
         .item-info {
@@ -222,32 +265,32 @@
         }
 
         .item-name {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
             color: #ffaa00;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
 
         .item-price {
             color: #00ffaa;
-            font-size: 14px;
-            margin-bottom: 3px;
+            font-size: 12px;
+            margin-bottom: 2px;
         }
 
         .item-income {
             color: #ffaa00;
-            font-size: 13px;
+            font-size: 11px;
         }
 
         .item-specs {
-            font-size: 11px;
+            font-size: 10px;
             color: #888;
-            margin-top: 5px;
+            margin-top: 3px;
         }
 
         #action-buttons {
             position: absolute;
-            bottom: 50px;
+            bottom: 350px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
@@ -257,17 +300,17 @@
         }
 
         .action-btn {
-            padding: 20px 40px;
+            padding: 15px 30px;
             border: none;
             border-radius: 60px;
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
             text-transform: uppercase;
             letter-spacing: 2px;
             box-shadow: 0 0 30px;
-            min-width: 250px;
+            min-width: 200px;
         }
 
         #mining-button {
@@ -321,10 +364,10 @@
 
         #progress-container {
             position: absolute;
-            bottom: 150px;
+            bottom: 420px;
             left: 50%;
             transform: translateX(-50%);
-            width: 600px;
+            width: 500px;
             background: rgba(0, 0, 0, 0.7);
             border-radius: 15px;
             padding: 5px;
@@ -333,7 +376,7 @@
         }
 
         #progress-bar {
-            height: 30px;
+            height: 25px;
             background: linear-gradient(90deg, #00ffaa, #00cc88);
             border-radius: 10px;
             width: 0%;
@@ -360,15 +403,14 @@
             transform: translate(-50%, -50%);
             color: black;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 14px;
             z-index: 1;
         }
 
         #computers-panel {
             position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            bottom: 20px;
+            left: 20px;
             background: rgba(0, 0, 0, 0.8);
             border: 2px solid #00ffaa;
             border-radius: 15px;
@@ -376,27 +418,59 @@
             color: white;
             z-index: 1000;
             pointer-events: auto;
+            width: 130px;
+        }
+
+        #computers-header {
+            text-align: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        #computers-header h3 {
+            color: #00ffaa;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #computers-grid {
             display: flex;
-            gap: 15px;
-            min-width: 500px;
-            justify-content: center;
-            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        #computers-grid::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #computers-grid::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        #computers-grid::-webkit-scrollbar-thumb {
+            background: #00ffaa;
+            border-radius: 2px;
         }
 
         .computer-slot {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid #ffaa00;
-            border-radius: 10px;
-            padding: 10px;
+            border-radius: 8px;
+            padding: 8px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
-            min-width: 100px;
+            width: 100%;
         }
 
         .computer-slot:hover {
             background: rgba(255, 170, 0, 0.2);
-            transform: translateY(-5px);
+            transform: translateX(5px);
         }
 
         .computer-slot.active {
@@ -415,26 +489,40 @@
             background: rgba(255, 255, 255, 0.1);
         }
 
+        .computer-slot .name {
+            font-weight: bold;
+            color: #ffaa00;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
         .computer-slot .power {
             color: #00ffaa;
-            font-size: 12px;
+            font-size: 11px;
+        }
+
+        .computer-slot .count {
+            font-size: 10px;
+            color: #888;
         }
 
         #new-computer-btn {
             background: linear-gradient(135deg, #00ffaa, #00cc88);
             color: black;
             border: none;
-            border-radius: 10px;
-            padding: 10px 20px;
+            border-radius: 8px;
+            padding: 10px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
-            font-size: 16px;
+            font-size: 13px;
             box-shadow: 0 0 20px #00ffaa;
+            margin-top: 15px;
+            width: 100%;
         }
 
         #new-computer-btn:hover {
-            transform: scale(1.1);
+            transform: scale(1.05);
             box-shadow: 0 0 30px #00ffaa;
         }
 
@@ -474,7 +562,7 @@
             position: absolute;
             color: #00ffaa;
             font-weight: bold;
-            font-size: 24px;
+            font-size: 20px;
             pointer-events: none;
             animation: floatUp 1.5s ease-out forwards;
             z-index: 2000;
@@ -517,7 +605,7 @@
     <div id="ui-container">
         <div id="stats-panel">
             <div style="font-size: 14px; color: #888; margin-bottom: 5px;">БАЛАНС</div>
-            <div id="balance">1000</div>
+            <div id="balance">200</div>
             <div style="margin-top: 15px; font-size: 14px; color: #888;">ДОХОД В СЕКУНДУ</div>
             <div id="income">0</div>
             <div id="mining-power">Мощность фермы: 0 GH/s</div>
@@ -538,10 +626,11 @@
             <span class="key">🖱 ЛКМ</span> вращать
             <span class="key">🖱 ПКМ</span> двигать
             <span class="key">R</span> сброс камеры
+            <button id="music-toggle">🔊 Музыка вкл</button>
         </div>
     </div>
 
-    <button id="toggle-shop">◀ Скрыть магазин</button>
+    <button id="toggle-shop">▲ Скрыть магазин</button>
 
     <div id="shop-panel">
         <div id="shop-header">
@@ -562,12 +651,15 @@
     </div>
 
     <div id="computers-panel">
-        <div id="computers-list"></div>
-        <button id="new-computer-btn">➕ Купить новый ПК (2000💰) 1/6</button>
+        <div id="computers-header">
+            <h3>🖥 МОИ ПК</h3>
+        </div>
+        <div id="computers-grid"></div>
+        <button id="new-computer-btn">➕ Купить ПК (2000💰)</button>
     </div>
 
     <div id="action-buttons">
-        <button id="mining-button" class="action-btn">⛏ МАЙНИНГ</button>
+        <button id="mining-button" class="action-btn">⛏ МАЙНИНГ +5</button>
         <button id="boost-button" class="action-btn">
             ⚡ X2 БУСТ
             <div id="boost-cooldown"></div>
@@ -581,7 +673,7 @@
         </div>
     </div>
 
-    <div id="notification">+100 монет!</div>
+    <div id="notification">+5 монет!</div>
 
     <script type="importmap">
         {
@@ -595,91 +687,273 @@
         import * as THREE from 'three';
         import { OrbitControls } from 'https://unpkg.com/three@0.128.0/examples/jsm/controls/OrbitControls.js';
 
-        // ============ РАСШИРЕННЫЙ СПИСОК КОМПЛЕКТУЮЩИХ ============
+        // ============ МУЗЫКА ============
+        let audioContext = null;
+        let musicEnabled = false;
+        let oscillator = null;
+        let gainNode = null;
+
+        function initAudio() {
+            if (audioContext) return;
+            
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            gainNode = audioContext.createGain();
+            gainNode.gain.value = 0.1;
+            gainNode.connect(audioContext.destination);
+            
+            createMusic();
+        }
+
+        function createMusic() {
+            if (!audioContext) return;
+            
+            oscillator = audioContext.createOscillator();
+            oscillator.type = 'sine';
+            oscillator.frequency.value = 440;
+            
+            const bassOsc = audioContext.createOscillator();
+            bassOsc.type = 'triangle';
+            bassOsc.frequency.value = 110;
+            
+            const filter = audioContext.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 1000;
+            
+            oscillator.connect(filter);
+            bassOsc.connect(filter);
+            filter.connect(gainNode);
+            
+            oscillator.start();
+            bassOsc.start();
+            
+            setInterval(() => {
+                if (musicEnabled && audioContext) {
+                    const now = audioContext.currentTime;
+                    gainNode.gain.exponentialRampToValueAtTime(0.15, now + 0.1);
+                    gainNode.gain.exponentialRampToValueAtTime(0.08, now + 0.3);
+                }
+            }, 500);
+            
+            let note = 0;
+            setInterval(() => {
+                if (musicEnabled && audioContext) {
+                    const notes = [440, 554, 659, 880];
+                    oscillator.frequency.exponentialRampToValueAtTime(
+                        notes[note % 4], 
+                        audioContext.currentTime + 0.1
+                    );
+                    note++;
+                }
+            }, 300);
+        }
+
+        function toggleMusic() {
+            const btn = document.getElementById('music-toggle');
+            
+            if (!musicEnabled) {
+                initAudio();
+                if (audioContext) {
+                    if (audioContext.state === 'suspended') {
+                        audioContext.resume();
+                    }
+                    musicEnabled = true;
+                    btn.textContent = '🔊 Музыка выкл';
+                    btn.style.background = '#ffaa00';
+                    btn.style.color = 'black';
+                }
+            } else {
+                if (audioContext) {
+                    audioContext.suspend();
+                    musicEnabled = false;
+                    btn.textContent = '🔈 Музыка вкл';
+                    btn.style.background = 'rgba(255,255,255,0.1)';
+                    btn.style.color = '#ffaa00';
+                }
+            }
+        }
+
+        document.getElementById('music-toggle').addEventListener('click', toggleMusic);
+
+        // ============ LOCALSTORAGE ============
+        function saveGame() {
+            const gameState = {
+                computers: computers.map(comp => ({
+                    ...comp,
+                    components: [...comp.components]
+                })),
+                balance: balance,
+                totalIncome: totalIncome,
+                totalPower: totalPower,
+                currentComputer: currentComputer
+            };
+            localStorage.setItem('miningFarmSave', JSON.stringify(gameState));
+            console.log('Игра сохранена');
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem('miningFarmSave');
+            if (saved) {
+                try {
+                    const gameState = JSON.parse(saved);
+                    
+                    computers = gameState.computers.map(comp => ({
+                        ...comp,
+                        components: [...comp.components]
+                    }));
+                    
+                    balance = gameState.balance;
+                    totalIncome = gameState.totalIncome;
+                    totalPower = gameState.totalPower;
+                    currentComputer = gameState.currentComputer;
+                    
+                    console.log('Игра загружена');
+                    
+                    for (let i = 1; i < computers.length; i++) {
+                        if (i < computerPositions.length) {
+                            const pos = computerPositions[i];
+                            const newComputer = createComputerCase(pos[0], pos[1], i);
+                            scene.add(newComputer);
+                            computerModels.push(newComputer);
+                        }
+                    }
+                    
+                    return true;
+                } catch (e) {
+                    console.error('Ошибка загрузки:', e);
+                }
+            }
+            return false;
+        }
+
+        function resetGame() {
+            if (confirm('Начать новую игру? Весь прогресс будет потерян!')) {
+                localStorage.removeItem('miningFarmSave');
+                location.reload();
+            }
+        }
+
+        const saveBtn = document.createElement('button');
+        saveBtn.textContent = '💾 Сохранить';
+        saveBtn.style.background = '#00ffaa';
+        saveBtn.style.color = 'black';
+        saveBtn.style.border = 'none';
+        saveBtn.style.padding = '8px 15px';
+        saveBtn.style.borderRadius = '30px';
+        saveBtn.style.cursor = 'pointer';
+        saveBtn.style.marginLeft = '10px';
+        saveBtn.style.fontWeight = 'bold';
+        
+        const loadBtn = document.createElement('button');
+        loadBtn.textContent = '📂 Загрузить';
+        loadBtn.style.background = '#ffaa00';
+        loadBtn.style.color = 'black';
+        loadBtn.style.border = 'none';
+        loadBtn.style.padding = '8px 15px';
+        loadBtn.style.borderRadius = '30px';
+        loadBtn.style.cursor = 'pointer';
+        loadBtn.style.marginLeft = '10px';
+        loadBtn.style.fontWeight = 'bold';
+        
+        const resetBtn = document.createElement('button');
+        resetBtn.textContent = '🔄 Новая игра';
+        resetBtn.style.background = '#ff5555';
+        resetBtn.style.color = 'white';
+        resetBtn.style.border = 'none';
+        resetBtn.style.padding = '8px 15px';
+        resetBtn.style.borderRadius = '30px';
+        resetBtn.style.cursor = 'pointer';
+        resetBtn.style.marginLeft = '10px';
+        resetBtn.style.fontWeight = 'bold';
+        
+        document.getElementById('controls-panel').appendChild(saveBtn);
+        document.getElementById('controls-panel').appendChild(loadBtn);
+        document.getElementById('controls-panel').appendChild(resetBtn);
+        
+        saveBtn.addEventListener('click', saveGame);
+        loadBtn.addEventListener('click', () => {
+            if (loadGame()) {
+                updateUI();
+                showNotification('Игра загружена!');
+            } else {
+                showNotification('Нет сохранения!');
+            }
+        });
+        resetBtn.addEventListener('click', resetGame);
+
+        setInterval(saveGame, 30000);
+
+        // ============ КОМПЛЕКТУЮЩИЕ ============
         const componentsData = [
             // Процессоры
-            { id: 'cpu_i3', name: 'Intel Core i3-12100', category: 'cpu', price: 150, income: 3, power: 4, tier: 1, icon: '🔹', specs: '4 ядра, 8 потоков' },
-            { id: 'cpu_i5', name: 'Intel Core i5-13600K', category: 'cpu', price: 350, income: 8, power: 14, tier: 2, icon: '🔶', specs: '14 ядер, 20 потоков' },
-            { id: 'cpu_i7', name: 'Intel Core i7-13700K', category: 'cpu', price: 500, income: 15, power: 20, tier: 3, icon: '💠', specs: '16 ядер, 24 потока' },
-            { id: 'cpu_i9', name: 'Intel Core i9-13900KS', category: 'cpu', price: 800, income: 25, power: 30, tier: 4, icon: '💎', specs: '24 ядра, 32 потока' },
-            { id: 'cpu_ryzen5', name: 'AMD Ryzen 5 7600X', category: 'cpu', price: 300, income: 7, power: 12, tier: 2, icon: '🔸', specs: '6 ядер, 12 потоков' },
-            { id: 'cpu_ryzen7', name: 'AMD Ryzen 7 7800X3D', category: 'cpu', price: 550, income: 18, power: 22, tier: 3, icon: '🔷', specs: '8 ядер, 16 потоков' },
-            { id: 'cpu_ryzen9', name: 'AMD Ryzen 9 7950X', category: 'cpu', price: 900, income: 30, power: 35, tier: 4, icon: '⚡', specs: '16 ядер, 32 потока' },
-            { id: 'cpu_threadripper', name: 'AMD Threadripper 7980X', category: 'cpu', price: 2500, income: 80, power: 80, tier: 5, icon: '👑', specs: '64 ядра, 128 потоков' },
+            { id: 'cpu_i3', name: 'Intel Core i3-12100', category: 'cpu', price: 150, income: 0.5, power: 4, tier: 1, icon: '🔹', specs: '4 ядра, 8 потоков' },
+            { id: 'cpu_i5', name: 'Intel Core i5-13600K', category: 'cpu', price: 350, income: 1.2, power: 14, tier: 2, icon: '🔶', specs: '14 ядер, 20 потоков' },
+            { id: 'cpu_i7', name: 'Intel Core i7-13700K', category: 'cpu', price: 500, income: 2, power: 20, tier: 3, icon: '💠', specs: '16 ядер, 24 потока' },
+            { id: 'cpu_i9', name: 'Intel Core i9-13900KS', category: 'cpu', price: 800, income: 3, power: 30, tier: 4, icon: '💎', specs: '24 ядра, 32 потока' },
+            { id: 'cpu_ryzen5', name: 'AMD Ryzen 5 7600X', category: 'cpu', price: 300, income: 1, power: 12, tier: 2, icon: '🔸', specs: '6 ядер, 12 потоков' },
+            { id: 'cpu_ryzen7', name: 'AMD Ryzen 7 7800X3D', category: 'cpu', price: 550, income: 2.2, power: 22, tier: 3, icon: '🔷', specs: '8 ядер, 16 потоков' },
+            { id: 'cpu_ryzen9', name: 'AMD Ryzen 9 7950X', category: 'cpu', price: 900, income: 3.5, power: 35, tier: 4, icon: '⚡', specs: '16 ядер, 32 потока' },
 
             // Видеокарты
-            { id: 'gpu_1650', name: 'NVIDIA GTX 1650', category: 'gpu', price: 200, income: 5, power: 6, tier: 1, icon: '🎮', specs: '4GB GDDR6' },
-            { id: 'gpu_1660', name: 'NVIDIA GTX 1660 Super', category: 'gpu', price: 300, income: 8, power: 10, tier: 2, icon: '🎯', specs: '6GB GDDR6' },
-            { id: 'gpu_2060', name: 'NVIDIA RTX 2060', category: 'gpu', price: 400, income: 12, power: 15, tier: 2, icon: '✨', specs: '6GB GDDR6' },
-            { id: 'gpu_3060', name: 'NVIDIA RTX 3060 Ti', category: 'gpu', price: 600, income: 20, power: 25, tier: 3, icon: '⚡', specs: '8GB GDDR6' },
-            { id: 'gpu_3070', name: 'NVIDIA RTX 3070', category: 'gpu', price: 800, income: 30, power: 35, tier: 3, icon: '💫', specs: '8GB GDDR6' },
-            { id: 'gpu_3080', name: 'NVIDIA RTX 3080', category: 'gpu', price: 1200, income: 45, power: 50, tier: 4, icon: '🚀', specs: '10GB GDDR6X' },
-            { id: 'gpu_3090', name: 'NVIDIA RTX 3090 Ti', category: 'gpu', price: 2000, income: 70, power: 75, tier: 5, icon: '💥', specs: '24GB GDDR6X' },
-            { id: 'gpu_4090', name: 'NVIDIA RTX 4090', category: 'gpu', price: 3000, income: 120, power: 120, tier: 6, icon: '👑', specs: '24GB GDDR6X' },
-            { id: 'gpu_rx6600', name: 'AMD RX 6600 XT', category: 'gpu', price: 450, income: 15, power: 18, tier: 2, icon: '🔴', specs: '8GB GDDR6' },
-            { id: 'gpu_rx6700', name: 'AMD RX 6700 XT', category: 'gpu', price: 650, income: 25, power: 28, tier: 3, icon: '❤️', specs: '12GB GDDR6' },
-            { id: 'gpu_rx6800', name: 'AMD RX 6800 XT', category: 'gpu', price: 900, income: 40, power: 45, tier: 4, icon: '🔥', specs: '16GB GDDR6' },
-            { id: 'gpu_rx7900', name: 'AMD RX 7900 XTX', category: 'gpu', price: 2500, income: 100, power: 100, tier: 6, icon: '⭐', specs: '24GB GDDR6' },
+            { id: 'gpu_1650', name: 'NVIDIA GTX 1650', category: 'gpu', price: 200, income: 0.6, power: 6, tier: 1, icon: '🎮', specs: '4GB GDDR6' },
+            { id: 'gpu_1660', name: 'NVIDIA GTX 1660 Super', category: 'gpu', price: 300, income: 1, power: 10, tier: 2, icon: '🎯', specs: '6GB GDDR6' },
+            { id: 'gpu_2060', name: 'NVIDIA RTX 2060', category: 'gpu', price: 400, income: 1.5, power: 15, tier: 2, icon: '✨', specs: '6GB GDDR6' },
+            { id: 'gpu_3060', name: 'NVIDIA RTX 3060 Ti', category: 'gpu', price: 600, income: 2.5, power: 25, tier: 3, icon: '⚡', specs: '8GB GDDR6' },
+            { id: 'gpu_3070', name: 'NVIDIA RTX 3070', category: 'gpu', price: 800, income: 3.5, power: 35, tier: 3, icon: '💫', specs: '8GB GDDR6' },
+            { id: 'gpu_3080', name: 'NVIDIA RTX 3080', category: 'gpu', price: 1200, income: 5, power: 50, tier: 4, icon: '🚀', specs: '10GB GDDR6X' },
+            { id: 'gpu_3090', name: 'NVIDIA RTX 3090 Ti', category: 'gpu', price: 2000, income: 8, power: 75, tier: 5, icon: '💥', specs: '24GB GDDR6X' },
+            { id: 'gpu_4090', name: 'NVIDIA RTX 4090', category: 'gpu', price: 3000, income: 14, power: 120, tier: 6, icon: '👑', specs: '24GB GDDR6X' },
 
-            // ОПЕРАТИВНАЯ ПАМЯТЬ (УВЕЛИЧЕНО)
-            { id: 'ram_4gb', name: 'DDR3 4GB 1600MHz', category: 'ram', price: 30, income: 0.5, power: 1, tier: 1, icon: '💾', specs: '4GB, CL11' },
-            { id: 'ram_8gb', name: 'DDR4 8GB 3200MHz', category: 'ram', price: 50, income: 1, power: 2, tier: 1, icon: '🧠', specs: '8GB, CL16' },
-            { id: 'ram_16gb', name: 'DDR4 16GB 3600MHz', category: 'ram', price: 90, income: 2, power: 4, tier: 2, icon: '🧮', specs: '16GB, CL18' },
-            { id: 'ram_32gb', name: 'DDR4 32GB 3600MHz', category: 'ram', price: 180, income: 4, power: 8, tier: 3, icon: '💿', specs: '32GB, CL18' },
-            { id: 'ram_64gb', name: 'DDR4 64GB 3200MHz', category: 'ram', price: 350, income: 8, power: 15, tier: 4, icon: '📀', specs: '64GB, CL16' },
-            { id: 'ram_ddr5_16', name: 'DDR5 16GB 6000MHz', category: 'ram', price: 150, income: 3, power: 6, tier: 3, icon: '⚡', specs: '16GB, CL36' },
-            { id: 'ram_ddr5_32', name: 'DDR5 32GB 6000MHz', category: 'ram', price: 280, income: 6, power: 12, tier: 4, icon: '💨', specs: '32GB, CL36' },
-            { id: 'ram_ddr5_64', name: 'DDR5 64GB 6400MHz', category: 'ram', price: 550, income: 12, power: 24, tier: 5, icon: '🚀', specs: '64GB, CL32' },
-            { id: 'ram_ddr5_128', name: 'DDR5 128GB 5600MHz', category: 'ram', price: 1200, income: 25, power: 45, tier: 6, icon: '💎', specs: '128GB, CL40' },
-            { id: 'ram_ecc', name: 'DDR4 ECC 64GB Server', category: 'ram', price: 800, income: 18, power: 30, tier: 5, icon: '🔒', specs: '64GB, ECC' },
+            // ОПЕРАТИВНАЯ ПАМЯТЬ
+            { id: 'ram_4gb', name: 'DDR3 4GB 1600MHz', category: 'ram', price: 30, income: 0.1, power: 1, tier: 1, icon: '💾', specs: '4GB, CL11' },
+            { id: 'ram_8gb', name: 'DDR4 8GB 3200MHz', category: 'ram', price: 50, income: 0.2, power: 2, tier: 1, icon: '🧠', specs: '8GB, CL16' },
+            { id: 'ram_16gb', name: 'DDR4 16GB 3600MHz', category: 'ram', price: 90, income: 0.3, power: 4, tier: 2, icon: '🧮', specs: '16GB, CL18' },
+            { id: 'ram_32gb', name: 'DDR4 32GB 3600MHz', category: 'ram', price: 180, income: 0.5, power: 8, tier: 3, icon: '💿', specs: '32GB, CL18' },
+            { id: 'ram_64gb', name: 'DDR4 64GB 3200MHz', category: 'ram', price: 350, income: 1, power: 15, tier: 4, icon: '📀', specs: '64GB, CL16' },
+            { id: 'ram_ddr5_16', name: 'DDR5 16GB 6000MHz', category: 'ram', price: 150, income: 0.4, power: 6, tier: 3, icon: '⚡', specs: '16GB, CL36' },
+            { id: 'ram_ddr5_32', name: 'DDR5 32GB 6000MHz', category: 'ram', price: 280, income: 0.8, power: 12, tier: 4, icon: '💨', specs: '32GB, CL36' },
+            { id: 'ram_ddr5_64', name: 'DDR5 64GB 6400MHz', category: 'ram', price: 550, income: 1.5, power: 24, tier: 5, icon: '🚀', specs: '64GB, CL32' },
 
-            // НАКОПИТЕЛИ (УВЕЛИЧЕНО)
-            { id: 'ssd_120', name: 'SSD 120GB SATA', category: 'storage', price: 30, income: 0.5, power: 1, tier: 1, icon: '💿', specs: '120GB, 450MB/s' },
-            { id: 'ssd_240', name: 'SSD 240GB SATA', category: 'storage', price: 45, income: 0.8, power: 1.5, tier: 1, icon: '💿', specs: '240GB, 500MB/s' },
-            { id: 'ssd_480', name: 'SSD 480GB SATA', category: 'storage', price: 60, income: 1.2, power: 2, tier: 2, icon: '💿', specs: '480GB, 550MB/s' },
-            { id: 'ssd_500', name: 'SSD 500GB NVMe', category: 'storage', price: 80, income: 2, power: 3, tier: 2, icon: '⚡', specs: '500GB, 3500MB/s' },
-            { id: 'ssd_1tb', name: 'SSD 1TB NVMe', category: 'storage', price: 150, income: 3, power: 4, tier: 3, icon: '💨', specs: '1TB, 5000MB/s' },
-            { id: 'ssd_2tb', name: 'SSD 2TB NVMe', category: 'storage', price: 280, income: 5, power: 7, tier: 4, icon: '🚀', specs: '2TB, 7000MB/s' },
-            { id: 'ssd_4tb', name: 'SSD 4TB NVMe', category: 'storage', price: 550, income: 10, power: 13, tier: 5, icon: '💫', specs: '4TB, 7000MB/s' },
-            { id: 'ssd_8tb', name: 'SSD 8TB NVMe', category: 'storage', price: 1200, income: 20, power: 25, tier: 6, icon: '🌟', specs: '8TB, 7000MB/s' },
-            { id: 'hdd_500', name: 'HDD 500GB', category: 'storage', price: 25, income: 0.3, power: 0.5, tier: 1, icon: '💽', specs: '500GB, 150MB/s' },
-            { id: 'hdd_1tb', name: 'HDD 1TB 7200rpm', category: 'storage', price: 50, income: 0.6, power: 1, tier: 1, icon: '💽', specs: '1TB, 160MB/s' },
-            { id: 'hdd_2tb', name: 'HDD 2TB 7200rpm', category: 'storage', price: 80, income: 1, power: 1.5, tier: 2, icon: '💽', specs: '2TB, 180MB/s' },
-            { id: 'hdd_4tb', name: 'HDD 4TB 7200rpm', category: 'storage', price: 120, income: 1.5, power: 2, tier: 2, icon: '📀', specs: '4TB, 180MB/s' },
-            { id: 'hdd_8tb', name: 'HDD 8TB 7200rpm', category: 'storage', price: 200, income: 2.5, power: 3, tier: 3, icon: '📀', specs: '8TB, 200MB/s' },
-            { id: 'hdd_10tb', name: 'HDD 10TB 7200rpm', category: 'storage', price: 300, income: 3.5, power: 4, tier: 3, icon: '💿', specs: '10TB, 210MB/s' },
-            { id: 'hdd_14tb', name: 'HDD 14TB 7200rpm', category: 'storage', price: 450, income: 5, power: 6, tier: 4, icon: '💿', specs: '14TB, 220MB/s' },
-            { id: 'hdd_18tb', name: 'HDD 18TB 7200rpm', category: 'storage', price: 600, income: 7, power: 8, tier: 5, icon: '📀', specs: '18TB, 240MB/s' },
-            { id: 'hdd_20tb', name: 'HDD 20TB 7200rpm', category: 'storage', price: 800, income: 9, power: 10, tier: 5, icon: '📀', specs: '20TB, 250MB/s' },
+            // НАКОПИТЕЛИ
+            { id: 'ssd_120', name: 'SSD 120GB SATA', category: 'storage', price: 30, income: 0.1, power: 1, tier: 1, icon: '💿', specs: '120GB, 450MB/s' },
+            { id: 'ssd_240', name: 'SSD 240GB SATA', category: 'storage', price: 45, income: 0.15, power: 1.5, tier: 1, icon: '💿', specs: '240GB, 500MB/s' },
+            { id: 'ssd_480', name: 'SSD 480GB SATA', category: 'storage', price: 60, income: 0.2, power: 2, tier: 2, icon: '💿', specs: '480GB, 550MB/s' },
+            { id: 'ssd_500', name: 'SSD 500GB NVMe', category: 'storage', price: 80, income: 0.25, power: 3, tier: 2, icon: '⚡', specs: '500GB, 3500MB/s' },
+            { id: 'ssd_1tb', name: 'SSD 1TB NVMe', category: 'storage', price: 150, income: 0.4, power: 4, tier: 3, icon: '💨', specs: '1TB, 5000MB/s' },
+            { id: 'ssd_2tb', name: 'SSD 2TB NVMe', category: 'storage', price: 280, income: 0.7, power: 7, tier: 4, icon: '🚀', specs: '2TB, 7000MB/s' },
+            { id: 'ssd_4tb', name: 'SSD 4TB NVMe', category: 'storage', price: 550, income: 1.2, power: 13, tier: 5, icon: '💫', specs: '4TB, 7000MB/s' },
+            { id: 'hdd_500', name: 'HDD 500GB', category: 'storage', price: 25, income: 0.05, power: 0.5, tier: 1, icon: '💽', specs: '500GB, 150MB/s' },
+            { id: 'hdd_1tb', name: 'HDD 1TB 7200rpm', category: 'storage', price: 50, income: 0.1, power: 1, tier: 1, icon: '💽', specs: '1TB, 160MB/s' },
+            { id: 'hdd_2tb', name: 'HDD 2TB 7200rpm', category: 'storage', price: 80, income: 0.15, power: 1.5, tier: 2, icon: '💽', specs: '2TB, 180MB/s' },
+            { id: 'hdd_4tb', name: 'HDD 4TB 7200rpm', category: 'storage', price: 120, income: 0.2, power: 2, tier: 2, icon: '📀', specs: '4TB, 180MB/s' },
+            { id: 'hdd_8tb', name: 'HDD 8TB 7200rpm', category: 'storage', price: 200, income: 0.3, power: 3, tier: 3, icon: '📀', specs: '8TB, 200MB/s' },
+            { id: 'hdd_10tb', name: 'HDD 10TB 7200rpm', category: 'storage', price: 300, income: 0.4, power: 4, tier: 3, icon: '💿', specs: '10TB, 210MB/s' },
+            { id: 'hdd_14tb', name: 'HDD 14TB 7200rpm', category: 'storage', price: 450, income: 0.6, power: 6, tier: 4, icon: '💿', specs: '14TB, 220MB/s' },
+            { id: 'hdd_18tb', name: 'HDD 18TB 7200rpm', category: 'storage', price: 600, income: 0.8, power: 8, tier: 5, icon: '📀', specs: '18TB, 240MB/s' },
 
-            // ОХЛАЖДЕНИЕ (УВЕЛИЧЕНО)
-            { id: 'cooler_air', name: 'Воздушный кулер', category: 'cooling', price: 50, income: 1, power: 2, tier: 1, icon: '🌀', specs: 'TDP 150W' },
-            { id: 'cooler_air_pro', name: 'Башенный кулер', category: 'cooling', price: 120, income: 2, power: 4, tier: 2, icon: '💨', specs: 'TDP 220W' },
-            { id: 'cooler_air_dual', name: 'Двухбашенный кулер', category: 'cooling', price: 200, income: 3, power: 6, tier: 3, icon: '🌪️', specs: 'TDP 280W' },
-            { id: 'aio_120', name: 'Жидкостное охлаждение 120мм', category: 'cooling', price: 150, income: 3, power: 5, tier: 3, icon: '💧', specs: 'TDP 200W' },
-            { id: 'aio_240', name: 'Жидкостное охлаждение 240мм', category: 'cooling', price: 250, income: 5, power: 8, tier: 4, icon: '🌊', specs: 'TDP 280W' },
-            { id: 'aio_280', name: 'Жидкостное охлаждение 280мм', category: 'cooling', price: 320, income: 6.5, power: 10, tier: 4, icon: '💧', specs: 'TDP 320W' },
-            { id: 'aio_360', name: 'Жидкостное охлаждение 360мм', category: 'cooling', price: 400, income: 8, power: 12, tier: 5, icon: '💦', specs: 'TDP 350W' },
-            { id: 'aio_420', name: 'Жидкостное охлаждение 420мм', category: 'cooling', price: 550, income: 11, power: 16, tier: 6, icon: '🌊', specs: 'TDP 400W' },
-            { id: 'custom_loop', name: 'Кастомная СЖО', category: 'cooling', price: 800, income: 15, power: 20, tier: 6, icon: '🔮', specs: 'TDP 500W+' },
-            { id: 'phase_change', name: 'Фазовый переход', category: 'cooling', price: 1500, income: 25, power: 35, tier: 7, icon: '❄️', specs: 'Экстремальное' },
-            { id: 'liquid_nitrogen', name: 'Жидкий азот', category: 'cooling', price: 2500, income: 40, power: 50, tier: 8, icon: '🧊', specs: '-196°C' },
+            // ОХЛАЖДЕНИЕ
+            { id: 'cooler_air', name: 'Воздушный кулер', category: 'cooling', price: 50, income: 0.1, power: 2, tier: 1, icon: '🌀', specs: 'TDP 150W' },
+            { id: 'cooler_air_pro', name: 'Башенный кулер', category: 'cooling', price: 120, income: 0.2, power: 4, tier: 2, icon: '💨', specs: 'TDP 220W' },
+            { id: 'cooler_air_dual', name: 'Двухбашенный кулер', category: 'cooling', price: 200, income: 0.3, power: 6, tier: 3, icon: '🌪️', specs: 'TDP 280W' },
+            { id: 'aio_120', name: 'Жидкостное охлаждение 120мм', category: 'cooling', price: 150, income: 0.3, power: 5, tier: 3, icon: '💧', specs: 'TDP 200W' },
+            { id: 'aio_240', name: 'Жидкостное охлаждение 240мм', category: 'cooling', price: 250, income: 0.5, power: 8, tier: 4, icon: '🌊', specs: 'TDP 280W' },
+            { id: 'aio_280', name: 'Жидкостное охлаждение 280мм', category: 'cooling', price: 320, income: 0.7, power: 10, tier: 4, icon: '💧', specs: 'TDP 320W' },
+            { id: 'aio_360', name: 'Жидкостное охлаждение 360мм', category: 'cooling', price: 400, income: 0.9, power: 12, tier: 5, icon: '💦', specs: 'TDP 350W' },
+            { id: 'aio_420', name: 'Жидкостное охлаждение 420мм', category: 'cooling', price: 550, income: 1.2, power: 16, tier: 6, icon: '🌊', specs: 'TDP 400W' },
+            { id: 'custom_loop', name: 'Кастомная СЖО', category: 'cooling', price: 800, income: 1.8, power: 20, tier: 6, icon: '🔮', specs: 'TDP 500W+' },
 
-            // БЛОКИ ПИТАНИЯ (УВЕЛИЧЕНО)
-            { id: 'psu_400w', name: 'БП 400W Bronze', category: 'psu', price: 60, income: 1, power: 2, tier: 1, icon: '🔌', specs: '400W, 80+ Bronze' },
-            { id: 'psu_500w', name: 'БП 500W Bronze', category: 'psu', price: 80, income: 1.5, power: 3, tier: 1, icon: '🔌', specs: '500W, 80+ Bronze' },
-            { id: 'psu_550w', name: 'БП 550W Gold', category: 'psu', price: 120, income: 2, power: 4, tier: 2, icon: '⚡', specs: '550W, 80+ Gold' },
-            { id: 'psu_650w', name: 'БП 650W Gold', category: 'psu', price: 160, income: 3, power: 5, tier: 2, icon: '⚡', specs: '650W, 80+ Gold' },
-            { id: 'psu_750w', name: 'БП 750W Gold', category: 'psu', price: 200, income: 4, power: 7, tier: 3, icon: '💡', specs: '750W, 80+ Gold' },
-            { id: 'psu_850w', name: 'БП 850W Platinum', category: 'psu', price: 300, income: 6, power: 10, tier: 4, icon: '🔋', specs: '850W, 80+ Platinum' },
-            { id: 'psu_1000w', name: 'БП 1000W Platinum', category: 'psu', price: 450, income: 9, power: 14, tier: 5, icon: '⚡', specs: '1000W, 80+ Platinum' },
-            { id: 'psu_1200w', name: 'БП 1200W Titanium', category: 'psu', price: 700, income: 14, power: 20, tier: 6, icon: '💎', specs: '1200W, 80+ Titanium' },
-            { id: 'psu_1600w', name: 'БП 1600W Titanium', category: 'psu', price: 1200, income: 22, power: 30, tier: 7, icon: '👑', specs: '1600W, 80+ Titanium' },
-            { id: 'psu_2000w', name: 'БП 2000W Server', category: 'psu', price: 2000, income: 35, power: 45, tier: 8, icon: '🏭', specs: '2000W, Redundant' },
-            { id: 'psu_2400w', name: 'БП 2400W Server', category: 'psu', price: 3000, income: 50, power: 60, tier: 9, icon: '⚙️', specs: '2400W, Redundant' }
+            // БЛОКИ ПИТАНИЯ
+            { id: 'psu_400w', name: 'БП 400W Bronze', category: 'psu', price: 60, income: 0.1, power: 2, tier: 1, icon: '🔌', specs: '400W, 80+ Bronze' },
+            { id: 'psu_500w', name: 'БП 500W Bronze', category: 'psu', price: 80, income: 0.15, power: 3, tier: 1, icon: '🔌', specs: '500W, 80+ Bronze' },
+            { id: 'psu_550w', name: 'БП 550W Gold', category: 'psu', price: 120, income: 0.2, power: 4, tier: 2, icon: '⚡', specs: '550W, 80+ Gold' },
+            { id: 'psu_650w', name: 'БП 650W Gold', category: 'psu', price: 160, income: 0.3, power: 5, tier: 2, icon: '⚡', specs: '650W, 80+ Gold' },
+            { id: 'psu_750w', name: 'БП 750W Gold', category: 'psu', price: 200, income: 0.4, power: 7, tier: 3, icon: '💡', specs: '750W, 80+ Gold' },
+            { id: 'psu_850w', name: 'БП 850W Platinum', category: 'psu', price: 300, income: 0.6, power: 10, tier: 4, icon: '🔋', specs: '850W, 80+ Platinum' },
+            { id: 'psu_1000w', name: 'БП 1000W Platinum', category: 'psu', price: 450, income: 1, power: 14, tier: 5, icon: '⚡', specs: '1000W, 80+ Platinum' },
+            { id: 'psu_1200w', name: 'БП 1200W Titanium', category: 'psu', price: 700, income: 1.6, power: 20, tier: 6, icon: '💎', specs: '1200W, 80+ Titanium' },
+            { id: 'psu_1600w', name: 'БП 1600W Titanium', category: 'psu', price: 1200, income: 2.5, power: 30, tier: 7, icon: '👑', specs: '1600W, 80+ Titanium' }
         ];
 
-        // Система компьютеров - начинаем с 1 ПК
+        // Система компьютеров
         let computers = [
             {
                 id: 0,
@@ -692,7 +966,7 @@
         ];
         
         let currentComputer = 0;
-        let balance = 1000;
+        let balance = 200;
         let totalIncome = 0;
         let totalPower = 0;
         let miningProgress = 0;
@@ -708,6 +982,9 @@
 
         // Состояние магазина
         let shopHidden = false;
+
+        // Пытаемся загрузить сохранение
+        loadGame();
 
         // ============ 3D СЦЕНА ============
         const scene = new THREE.Scene();
@@ -849,7 +1126,7 @@
         scene.add(firstComputer);
         computerModels.push(firstComputer);
 
-        // Позиции для будущих компьютеров (вокруг центра)
+        // Позиции для будущих компьютеров
         const computerPositions = [
             [0, 0],      // центр
             [5, 0],      // справа
@@ -858,6 +1135,16 @@
             [0, -5],     // снизу
             [5, 5]       // диагональ
         ];
+
+        // Создаем компьютеры из загрузки
+        for (let i = 1; i < computers.length; i++) {
+            if (i < computerPositions.length) {
+                const pos = computerPositions[i];
+                const computer = createComputerCase(pos[0], pos[1], i);
+                scene.add(computer);
+                computerModels.push(computer);
+            }
+        }
 
         // Частицы
         const particleCount = 500;
@@ -907,28 +1194,28 @@
             document.getElementById('total-parts').textContent = computers.reduce((sum, comp) => 
                 sum + comp.components.filter(c => c).length, 0);
             
-            // Обновление списка компьютеров
+            // Обновление вертикальной сетки компьютеров
             let computersHTML = computers.map((comp, index) => `
                 <div class="computer-slot ${index === currentComputer ? 'active' : ''}" 
                      onclick="switchComputer(${index})">
-                    <div>${comp.name}</div>
+                    <div class="name">${comp.name}</div>
                     <div class="power">⚡ ${comp.totalPower} GH/s</div>
-                    <div style="font-size: 10px; color: #888;">${comp.components.filter(c => c).length} компонентов</div>
+                    <div class="count">${comp.components.filter(c => c).length} комп.</div>
                 </div>
             `).join('');
             
-            // Добавляем пустые слоты
+            // Добавляем пустые слоты вертикально
             const emptySlots = 6 - computers.length;
             for (let i = 0; i < emptySlots; i++) {
                 computersHTML += `
                     <div class="computer-slot empty">
-                        <div>🔒 Пустой слот</div>
-                        <div style="font-size: 10px; color: #888;">Купите новый ПК</div>
+                        <div class="name">🔒 Пусто</div>
+                        <div class="count">Купите ПК</div>
                     </div>
                 `;
             }
             
-            document.getElementById('computers-list').innerHTML = computersHTML;
+            document.getElementById('computers-grid').innerHTML = computersHTML;
             
             // Кнопка нового компьютера
             const newBtn = document.getElementById('new-computer-btn');
@@ -937,7 +1224,7 @@
                 newBtn.textContent = '➕ Максимум ПК (6/6)';
             } else {
                 newBtn.disabled = balance < 2000;
-                newBtn.textContent = `➕ Купить новый ПК (2000💰) ${computers.length}/6`;
+                newBtn.textContent = `➕ Купить ПК (2000💰) ${computers.length}/6`;
             }
             
             // Обновление магазина
@@ -1054,11 +1341,11 @@
             if (shopHidden) {
                 shop.classList.add('hidden');
                 toggle.classList.add('hidden');
-                toggle.textContent = '▶ Показать магазин';
+                toggle.textContent = '▼ Показать магазин';
             } else {
                 shop.classList.remove('hidden');
                 toggle.classList.remove('hidden');
-                toggle.textContent = '◀ Скрыть магазин';
+                toggle.textContent = '▲ Скрыть магазин';
             }
         });
 
@@ -1160,8 +1447,8 @@
 
         // Майнинг
         document.getElementById('mining-button').addEventListener('click', (e) => {
-            const baseReward = 100;
-            const powerBonus = Math.floor(totalPower / 5);
+            const baseReward = 5;
+            const powerBonus = Math.floor(totalPower / 10);
             const boostMultiplier = boostActive ? 2 : 1;
             const reward = (baseReward + powerBonus) * boostMultiplier;
             
@@ -1172,12 +1459,12 @@
             
             showNotification(`+${reward} монет! ${boostActive ? '(x2 BOOST)' : ''}`);
             
-            for (let i = 0; i < 8; i++) {
+            for (let i = 0; i < 5; i++) {
                 setTimeout(() => {
-                    createFloatingParticle(`+${Math.floor(reward/5)}`, 
+                    createFloatingParticle(`+${Math.floor(reward/3)}`, 
                         e.clientX + (Math.random() - 0.5) * 150, 
                         e.clientY + (Math.random() - 0.5) * 100);
-                }, i * 80);
+                }, i * 100);
             }
             
             computerModels.forEach(model => {
@@ -1199,7 +1486,7 @@
         // Прогресс
         setInterval(() => {
             if (miningProgress < 100) {
-                const speed = 1 + totalPower / 30;
+                const speed = 0.5 + totalPower / 50;
                 miningProgress += speed;
                 const progress = Math.min(miningProgress, 100);
                 document.getElementById('progress-bar').style.width = progress + '%';
