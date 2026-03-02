@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D МАЙНИНГ ФЕРМА - Танцующие клиенты</title>
+    <title>3D МАЙНИНГ ФЕРМА - Своя музыка</title>
     <style>
         * {
             margin: 0;
@@ -98,6 +98,23 @@
 
         #music-toggle:hover {
             background: #ffaa00;
+            color: black;
+        }
+
+        #upload-music-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #00ffaa;
+            color: #00ffaa;
+            padding: 8px 15px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            margin-left: 10px;
+        }
+
+        #upload-music-btn:hover {
+            background: #00ffaa;
             color: black;
         }
 
@@ -777,6 +794,138 @@
         #open-client-btn.visible {
             display: block;
         }
+
+        #music-panel {
+            position: absolute;
+            top: 120px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ffaa;
+            border-radius: 15px;
+            padding: 15px;
+            color: white;
+            z-index: 1000;
+            pointer-events: auto;
+            width: 280px;
+        }
+
+        #music-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 255, 170, 0.3);
+        }
+
+        #music-header h3 {
+            color: #00ffaa;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #music-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        .music-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #00ffaa;
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .music-item:hover {
+            background: rgba(0, 255, 170, 0.2);
+            transform: translateX(5px);
+        }
+
+        .music-item.active {
+            background: rgba(0, 255, 170, 0.3);
+            border: 2px solid #00ffaa;
+        }
+
+        .music-item .name {
+            font-size: 13px;
+            color: white;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .music-item .delete {
+            color: #ff5555;
+            cursor: pointer;
+            padding: 0 5px;
+            font-size: 16px;
+        }
+
+        .music-item .delete:hover {
+            color: #ff0000;
+        }
+
+        #upload-music-input {
+            display: none;
+        }
+
+        #upload-music-label {
+            background: linear-gradient(135deg, #00ffaa, #00cc88);
+            color: black;
+            border: none;
+            border-radius: 8px;
+            padding: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+            width: 100%;
+            text-align: center;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        #upload-music-label:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #00ffaa;
+        }
+
+        .music-controls {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .music-control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #00ffaa;
+            color: #00ffaa;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            flex: 1;
+            transition: all 0.3s;
+        }
+
+        .music-control-btn:hover {
+            background: #00ffaa;
+            color: black;
+        }
+
+        .music-control-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -875,6 +1024,20 @@
         <button id="new-computer-btn">➕ Купить ПК (2000💰)</button>
     </div>
 
+    <div id="music-panel">
+        <div id="music-header">
+            <h3>🎵 МОЯ МУЗЫКА</h3>
+        </div>
+        <div id="music-list"></div>
+        <input type="file" id="upload-music-input" accept="audio/*" multiple>
+        <label for="upload-music-input" id="upload-music-label">📁 Загрузить музыку</label>
+        <div class="music-controls">
+            <button class="music-control-btn" id="play-music">▶</button>
+            <button class="music-control-btn" id="pause-music">⏸️</button>
+            <button class="music-control-btn" id="stop-music">⏹️</button>
+        </div>
+    </div>
+
     <div id="action-buttons">
         <button id="mining-button" class="action-btn">⛏ МАЙНИНГ +5</button>
         <button id="boost-button" class="action-btn">
@@ -904,92 +1067,198 @@
         import * as THREE from 'three';
         import { OrbitControls } from 'https://unpkg.com/three@0.128.0/examples/jsm/controls/OrbitControls.js';
 
-        // ============ МУЗЫКА ============
+        // ============ МУЗЫКАЛЬНАЯ СИСТЕМА ============
         let audioContext = null;
         let musicEnabled = false;
-        let oscillator = null;
-        let gainNode = null;
+        let currentAudio = null;
+        let currentAudioSource = null;
+        let musicList = [];
+        let currentMusicIndex = -1;
 
-        function initAudio() {
-            if (audioContext) return;
-            
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            gainNode = audioContext.createGain();
-            gainNode.gain.value = 0.1;
-            gainNode.connect(audioContext.destination);
-            
-            createMusic();
-        }
-
-        function createMusic() {
-            if (!audioContext) return;
-            
-            oscillator = audioContext.createOscillator();
-            oscillator.type = 'sine';
-            oscillator.frequency.value = 440;
-            
-            const bassOsc = audioContext.createOscillator();
-            bassOsc.type = 'triangle';
-            bassOsc.frequency.value = 110;
-            
-            const filter = audioContext.createBiquadFilter();
-            filter.type = 'lowpass';
-            filter.frequency.value = 1000;
-            
-            oscillator.connect(filter);
-            bassOsc.connect(filter);
-            filter.connect(gainNode);
-            
-            oscillator.start();
-            bassOsc.start();
-            
-            setInterval(() => {
-                if (musicEnabled && audioContext) {
-                    const now = audioContext.currentTime;
-                    gainNode.gain.exponentialRampToValueAtTime(0.15, now + 0.1);
-                    gainNode.gain.exponentialRampToValueAtTime(0.08, now + 0.3);
-                }
-            }, 500);
-            
-            let note = 0;
-            setInterval(() => {
-                if (musicEnabled && audioContext) {
-                    const notes = [440, 554, 659, 880];
-                    oscillator.frequency.exponentialRampToValueAtTime(
-                        notes[note % 4], 
-                        audioContext.currentTime + 0.1
-                    );
-                    note++;
-                }
-            }, 300);
-        }
-
-        function toggleMusic() {
-            const btn = document.getElementById('music-toggle');
-            
-            if (!musicEnabled) {
-                initAudio();
-                if (audioContext) {
-                    if (audioContext.state === 'suspended') {
-                        audioContext.resume();
-                    }
-                    musicEnabled = true;
-                    btn.textContent = '🔊 Музыка выкл';
-                    btn.style.background = '#ffaa00';
-                    btn.style.color = 'black';
-                }
-            } else {
-                if (audioContext) {
-                    audioContext.suspend();
-                    musicEnabled = false;
-                    btn.textContent = '🔈 Музыка вкл';
-                    btn.style.background = 'rgba(255,255,255,0.1)';
-                    btn.style.color = '#ffaa00';
+        // Загрузка музыки из localStorage
+        function loadMusicFromStorage() {
+            const savedMusic = localStorage.getItem('customMusic');
+            if (savedMusic) {
+                try {
+                    musicList = JSON.parse(savedMusic);
+                    updateMusicList();
+                } catch (e) {
+                    console.error('Ошибка загрузки музыки:', e);
+                    musicList = [];
                 }
             }
         }
 
-        document.getElementById('music-toggle').addEventListener('click', toggleMusic);
+        // Сохранение музыки в localStorage
+        function saveMusicToStorage() {
+            localStorage.setItem('customMusic', JSON.stringify(musicList));
+        }
+
+        // Обновление списка музыки в интерфейсе
+        function updateMusicList() {
+            const musicListEl = document.getElementById('music-list');
+            if (musicList.length === 0) {
+                musicListEl.innerHTML = '<div style="color: #888; text-align: center; padding: 10px;">Нет загруженной музыки</div>';
+                return;
+            }
+
+            musicListEl.innerHTML = musicList.map((track, index) => `
+                <div class="music-item ${index === currentMusicIndex ? 'active' : ''}" onclick="playMusicFromList(${index})">
+                    <span class="name">${track.name}</span>
+                    <span class="delete" onclick="deleteMusic(${index}, event)">✖</span>
+                </div>
+            `).join('');
+        }
+
+        // Воспроизведение музыки из списка
+        window.playMusicFromList = (index) => {
+            if (index >= 0 && index < musicList.length) {
+                const track = musicList[index];
+                
+                // Останавливаем текущее воспроизведение
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio = null;
+                }
+
+                // Создаем новый аудио элемент
+                try {
+                    // Декодируем base64 в аудио данные
+                    const audioData = atob(track.data.split(',')[1]);
+                    const arrayBuffer = new ArrayBuffer(audioData.length);
+                    const view = new Uint8Array(arrayBuffer);
+                    for (let i = 0; i < audioData.length; i++) {
+                        view[i] = audioData.charCodeAt(i);
+                    }
+
+                    const blob = new Blob([arrayBuffer], { type: track.type });
+                    const url = URL.createObjectURL(blob);
+                    
+                    currentAudio = new Audio(url);
+                    currentAudio.loop = false;
+                    currentAudio.volume = 0.5;
+                    
+                    currentAudio.play().then(() => {
+                        musicEnabled = true;
+                        currentMusicIndex = index;
+                        updateMusicList();
+                        document.getElementById('music-toggle').textContent = '🔊 Музыка выкл';
+                        document.getElementById('music-toggle').style.background = '#ffaa00';
+                        
+                        currentAudio.onended = () => {
+                            // Автоматически играем следующий трек
+                            if (index + 1 < musicList.length) {
+                                playMusicFromList(index + 1);
+                            } else {
+                                stopMusic();
+                            }
+                        };
+                    }).catch(e => {
+                        console.error('Ошибка воспроизведения:', e);
+                        showNotification('Ошибка воспроизведения музыки');
+                    });
+                } catch (e) {
+                    console.error('Ошибка декодирования:', e);
+                    showNotification('Ошибка загрузки музыки');
+                }
+            }
+        };
+
+        // Удаление музыки
+        window.deleteMusic = (index, event) => {
+            event.stopPropagation();
+            
+            if (index === currentMusicIndex) {
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio = null;
+                }
+                currentMusicIndex = -1;
+                musicEnabled = false;
+                document.getElementById('music-toggle').textContent = '🔈 Музыка вкл';
+                document.getElementById('music-toggle').style.background = 'rgba(255,255,255,0.1)';
+            }
+            
+            musicList.splice(index, 1);
+            saveMusicToStorage();
+            updateMusicList();
+            
+            if (index < currentMusicIndex) {
+                currentMusicIndex--;
+            }
+        };
+
+        // Остановка музыки
+        function stopMusic() {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+            }
+            musicEnabled = false;
+            currentMusicIndex = -1;
+            document.getElementById('music-toggle').textContent = '🔈 Музыка вкл';
+            document.getElementById('music-toggle').style.background = 'rgba(255,255,255,0.1)';
+            updateMusicList();
+        }
+
+        // Загрузка музыки из файла
+        document.getElementById('upload-music-input').addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    // Конвертируем в base64 для сохранения в localStorage
+                    const base64Data = event.target.result;
+                    
+                    musicList.push({
+                        name: file.name,
+                        data: base64Data,
+                        type: file.type
+                    });
+                    
+                    saveMusicToStorage();
+                    updateMusicList();
+                    
+                    // Если это первый трек, начинаем воспроизведение
+                    if (musicList.length === 1) {
+                        playMusicFromList(0);
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            // Очищаем input для возможности повторной загрузки тех же файлов
+            e.target.value = '';
+        });
+
+        // Кнопки управления музыкой
+        document.getElementById('play-music').addEventListener('click', () => {
+            if (musicList.length > 0) {
+                if (currentMusicIndex === -1) {
+                    playMusicFromList(0);
+                } else if (currentAudio) {
+                    currentAudio.play();
+                    musicEnabled = true;
+                    document.getElementById('music-toggle').textContent = '🔊 Музыка выкл';
+                    document.getElementById('music-toggle').style.background = '#ffaa00';
+                }
+            }
+        });
+
+        document.getElementById('pause-music').addEventListener('click', () => {
+            if (currentAudio) {
+                currentAudio.pause();
+                musicEnabled = false;
+                document.getElementById('music-toggle').textContent = '🔈 Музыка вкл';
+                document.getElementById('music-toggle').style.background = 'rgba(255,255,255,0.1)';
+            }
+        });
+
+        document.getElementById('stop-music').addEventListener('click', stopMusic);
+
+        // Загружаем сохраненную музыку при старте
+        loadMusicFromStorage();
 
         // ============ LOCALSTORAGE ============
         function saveGame() {
@@ -2167,7 +2436,7 @@
 
         setInterval(updateBoostUI, 100);
 
-        // Майнинг кнопка - ИСПРАВЛЕНО!
+        // Майнинг кнопка
         document.getElementById('mining-button').addEventListener('click', (e) => {
             const baseReward = 5;
             const powerBonus = Math.floor(totalPower / 10);
@@ -2282,6 +2551,25 @@
                 });
             });
         }, 50);
+
+        // Переопределяем toggleMusic для работы с загруженной музыкой
+        document.getElementById('music-toggle').addEventListener('click', () => {
+            if (currentAudio) {
+                if (musicEnabled) {
+                    currentAudio.pause();
+                    musicEnabled = false;
+                    document.getElementById('music-toggle').textContent = '🔈 Музыка вкл';
+                    document.getElementById('music-toggle').style.background = 'rgba(255,255,255,0.1)';
+                } else {
+                    currentAudio.play();
+                    musicEnabled = true;
+                    document.getElementById('music-toggle').textContent = '🔊 Музыка выкл';
+                    document.getElementById('music-toggle').style.background = '#ffaa00';
+                }
+            } else {
+                showNotification('Сначала загрузите музыку!');
+            }
+        });
 
         // Анимация
         function animate() {
